@@ -13,8 +13,8 @@
     </script>
 
     <link rel="icon" type="image/webp" href="imagenes/logo.webp">
+
     <title>Papajose SPA | Comercializadora</title>
-    
     <meta name="description" content="Comercializadora de artículos variados. Envíos a todo Chile. Compra segura y trato directo.">
     <meta property="og:title" content="Papajose SPA | Catálogo Online">
     <meta property="og:description" content="Encuentra de todo a los mejores precios. Stock actualizado.">
@@ -24,205 +24,31 @@
 
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org", "@type": "Store",
-        "name": "Papajose SPA", "telephone": "+56936416743",
-        "priceRange": "$$", "image": "imagenes/logo.webp"
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "Papajose SPA",
+        "description": "Comercializadora de artículos variados. Envíos a todo Chile.",
+        "url": "https://comercializadora.papajose.cl",
+        "telephone": "+56936416743",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "CL"
+        },
+        "openingHours": "Mo-Fr 09:00-18:00",
+        "priceRange": "$$",
+        "image": "imagenes/logo.webp"
     }
     </script>
 
+    <!-- IMPORTANTE: Tailwind y Firebase -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css">
     
-    <style>
-        :root { --beige: #D2B48C; --soft-bg: #FAFAF9; --dark-text: #1a1a1a; --pastel-menu: #FFFBF2; }
-        body { font-family: 'Segoe UI', sans-serif; color: var(--dark-text); background-image: url('imagenes/fondo.webp'); background-size: cover; background-position: center; background-color: #f0f0f0; }
-        
-        @media (min-width: 1024px) {
-            body { background-attachment: fixed; } 
-            .layout-desktop { margin-left: 280px; } 
-            .header-desktop-adjust { padding-left: 280px; }
-            .destacados-grid-pc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-            .product-modal-desktop { max-width: 800px; max-height: 85vh; margin: 5vh auto; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
-        }
-        @media (max-width: 1023px) {
-            body { background-attachment: scroll; padding-bottom: 120px; } 
-            .mobile-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 1rem; padding-bottom: 1rem; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-            .mobile-slider::-webkit-scrollbar { display: none; }
-            .slider-card { flex: 0 0 75%; scroll-snap-align: center; transform: translateZ(0); will-change: transform; }
-            .sticky-search-container { position: sticky; top: 80px; z-index: 40; background-color: rgba(255, 255, 255, 0.98); padding: 10px 16px; margin: 0 -16px 20px; border-bottom: 1px solid #f3f4f6; }
-            input, select, textarea { font-size: 16px !important; }
-            button, a { touch-action: manipulation; }
-        }
-        .glass-panel { background-color: rgba(255, 255, 255, 0.92); backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.5); }
-        .menu-bg-color { background-color: var(--pastel-menu); }
-        .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .no-stock { filter: grayscale(100%); opacity: 0.6; }
-        details > summary { list-style: none; } details > summary::-webkit-details-marker { display: none; }
-        .toast-enter { transform: translate(-50%, 100%); opacity: 0; }
-        .toast-visible { transform: translate(-50%, 0); opacity: 1; }
-        .overlay-base { position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
-        .overlay-base.open { opacity: 1; visibility: visible; }
-        #menu-overlay { z-index: 145; } #cart-overlay { z-index: 155; } 
-        #cart-sidebar, #left-sidebar { will-change: transform; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
-        #mobile-sticky-bar { transition: transform 0.3s ease; }
-        img.lazy-load { opacity: 0; transition: opacity 0.3s; } img:not(.lazy-load) { opacity: 1; }
-        html { scroll-behavior: smooth; }
-        .img-placeholder { background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%); background-size: 20px 20px; }
-    </style>
-</head>
-<body class="font-sans antialiased overflow-x-hidden">
-
-    <header class="fixed top-0 w-full bg-white z-[50] border-b border-gray-50 h-20 shadow-sm transition-all duration-300 header-desktop-adjust">
-        <div class="h-full flex justify-between items-center px-6 md:px-10 relative">
-            <div class="flex items-center z-20">
-                <button onclick="window.toggleMobileMenu()" class="lg:hidden text-2xl text-beige hover:text-black transition"><i class="fa fa-bars"></i></button>
-            </div>
-            
-            <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full pointer-events-none z-30">
-                <div onclick="window.resetAndScrollToTop()" class="pointer-events-auto inline-flex items-center gap-3 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full border border-gray-50 shadow-sm cursor-pointer hover:bg-gray-50 transition-all active:scale-95">
-                    <img src="imagenes/logo.webp" class="w-8 h-8 rounded-full object-cover bg-white shadow-sm" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23D2B48C%22/%3E%3Ctext x=%2216%22 y=%2216%22 font-family=%22Arial%22 font-size=%2210%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22%3EPJ%3C/text%3E%3C/svg%3E'">
-                    <h1 class="text-lg md:text-2xl font-black tracking-widest text-gray-800 uppercase whitespace-nowrap">Papajose <span class="text-beige">SPA</span></h1>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-6 z-20 bg-white pl-4">
-                <div class="hidden lg:block relative group">
-                    <input type="text" onkeyup="window.buscar(this.value)" placeholder="Buscar en la nube..." class="bg-gray-50/50 border border-transparent rounded-full px-5 py-2.5 w-64 text-sm focus:ring-1 focus:ring-beige focus:bg-white focus:border-beige transition-all">
-                    <i class="fa fa-search absolute right-4 top-3 text-beige"></i>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span id="header-total" class="hidden md:block font-bold text-gray-700 text-sm opacity-0 transition-opacity duration-300">$0</span>
-                    <button onclick="window.toggleCart()" class="relative p-2 group" id="cart-btn-header">
-                        <i class="fa fa-shopping-bag text-2xl text-gray-400 group-hover:text-black transition" id="cart-icon"></i>
-                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white scale-0 transition-transform duration-300">0</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <div id="menu-overlay" class="overlay-base" onclick="window.handleBackAction()"></div>
-    <div id="cart-overlay" class="overlay-base" onclick="window.forceCloseCart()"></div>
-
-    <aside id="left-sidebar" class="fixed inset-y-0 left-0 w-[280px] menu-bg-color border-r border-gray-100 z-[150] pt-24 transform -translate-x-full lg:translate-x-0 shadow-2xl flex flex-col justify-between h-full">
-        <div class="p-6 overflow-y-auto">
-            <div class="flex justify-between items-center mb-8 lg:hidden">
-                <span class="font-bold text-gray-400 uppercase tracking-widest text-xs">Navegación</span>
-                <button onclick="window.handleBackAction()" class="text-2xl text-gray-500">✕</button>
-            </div>
-            <nav class="space-y-2" id="nav-categorias"></nav>
-        </div>
-        <div class="p-8 border-t border-gray-100 bg-white/50">
-            <h4 class="text-xs font-black uppercase text-gray-400 mb-4 tracking-widest">Síguenos</h4>
-            <div class="flex gap-6 text-2xl text-gray-400">
-                <a href="https://www.instagram.com/comercializadora_papa_jose_spa" target="_blank" class="hover:text-beige"><i class="fab fa-instagram"></i></a>
-                <a href="https://www.tiktok.com/@papa_jose_spa" target="_blank" class="hover:text-beige"><i class="fab fa-tiktok"></i></a>
-                <a href="https://wa.me/56936416743" target="_blank" class="hover:text-beige"><i class="fab fa-whatsapp"></i></a>
-            </div>
-            <p class="text-[10px] text-gray-300 mt-4">© 2026 Papajose SPA</p>
-        </div>
-    </aside>
-
-    <main id="main-content" class="pt-28 px-4 md:px-12 layout-desktop min-h-screen">
-        <div class="lg:hidden sticky-search-container">
-            <div class="relative w-full">
-                <input type="text" onkeyup="window.buscar(this.value)" placeholder="¿Qué buscas hoy?" class="w-full bg-gray-50 border border-transparent p-4 pl-12 rounded-2xl shadow-sm focus:ring-1 focus:ring-beige focus:bg-white transition">
-                <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-beige"></i>
-            </div>
-        </div>
-
-        <section class="relative glass-panel text-gray-800 py-12 px-6 md:px-12 mb-12 rounded-[2rem] overflow-hidden shadow-lg fade-in-up">
-            <div class="relative z-10 max-w-6xl mx-auto">
-                <div class="text-center mb-8">
-                    <div class="flex justify-center mb-4">
-                        <div class="w-20 h-20 rounded-full bg-white p-1 shadow-lg flex items-center justify-center">
-                            <img src="imagenes/logo.webp" class="w-full h-full rounded-full object-cover" alt="Logo Hero" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23D2B48C%22/%3E%3Ctext x=%2216%22 y=%2216%22 font-family=%22Arial%22 font-size=%2210%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22%3EPJ%3C/text%3E%3C/svg%3E'">
-                        </div>
-                    </div>
-                    <span class="inline-block py-1.5 px-4 rounded-full bg-black text-white font-bold text-[10px] md:text-xs tracking-widest uppercase mb-4 shadow-sm">Comercializadora Online</span>
-                    <h2 class="text-3xl md:text-5xl font-black mb-4 leading-tight text-gray-900 tracking-tight">Variedad, Calidad y <span class="text-beige italic font-serif">Buenos Precios.</span></h2>
-                </div>
-                <div class="mt-8 border-t border-gray-200 pt-8">
-                    <h3 class="text-center font-bold text-gray-400 text-xs uppercase tracking-widest mb-6">🔥 Productos Destacados</h3>
-                    <div id="hero-destacados-container" class="mobile-slider destacados-grid-pc pb-2">
-                        <div class="text-center w-full text-gray-400">Cargando...</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="mb-16 py-10 px-4 bg-white/95 border-2 border-gray-100 rounded-3xl shadow-md">
-            <h3 class="text-center font-black text-gray-900 text-sm uppercase tracking-widest mb-10 border-b pb-4 border-gray-200"><i class="fa fa-check-circle text-green-500 mr-2"></i> Proceso de Compra Seguro</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                <div class="flex flex-col items-center group"><div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-xl mb-4 shadow-lg"><i class="fa fa-hand-pointer"></i></div><span class="font-black text-gray-900">1. Elige</span><p class="text-xs text-gray-500 mt-2">Productos</p></div>
-                <div class="flex flex-col items-center group"><div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-xl mb-4 shadow-lg"><i class="fa fa-whatsapp"></i></div><span class="font-black text-gray-900">2. Valida</span><p class="text-xs text-gray-500 mt-2">Stock WhatsApp</p></div>
-                <div class="flex flex-col items-center group"><div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-xl mb-4 shadow-lg"><i class="fa fa-building-columns"></i></div><span class="font-black text-gray-900">3. Paga</span><p class="text-xs text-gray-500 mt-2">Cuenta Empresa</p></div>
-                <div class="flex flex-col items-center group"><div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-xl mb-4 shadow-lg"><i class="fa fa-box"></i></div><span class="font-black text-gray-900">4. Recibe</span><p class="text-xs text-gray-500 mt-2">Todo Chile</p></div>
-            </div>
-        </section>
-
-        <div id="loading-msg" class="text-center py-20 glass-panel rounded-2xl mb-10">
-            <i class="fa fa-circle-notch fa-spin text-4xl text-beige mb-4"></i>
-            <p class="text-gray-900 font-bold">Conectando a Firebase...</p>
-        </div>
-
-        <section id="seccion-catalogo" class="hidden mb-12">
-            <div class="glass-panel p-6 rounded-2xl mb-6 flex items-center justify-between shadow-sm">
-                <h2 id="titulo-grid" class="text-xl font-black text-gray-900 uppercase tracking-widest">Catálogo</h2>
-                <span id="cantidad-productos" class="text-xs font-bold text-white bg-black px-3 py-1.5 rounded-lg">0</span>
-            </div>
-            <div id="grid-productos" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 mb-8"></div>
-            <div id="pagination-controls" class="flex justify-center items-center gap-4 py-6 hidden">
-                <button onclick="window.changePage(-1)" id="btn-prev" class="bg-white px-4 py-2 rounded-full shadow border">Anterior</button>
-                <span id="page-indicator" class="font-bold text-gray-900 bg-white px-4 py-2 rounded-full shadow border">Pág 1</span>
-                <button onclick="window.changePage(1)" id="btn-next" class="bg-black text-white px-6 py-2 rounded-full shadow">Siguiente</button>
-            </div>
-        </section>
-
-        <section class="max-w-3xl mx-auto mb-20 space-y-4">
-            <details class="group glass-panel rounded-2xl p-6 cursor-pointer open:ring-1 open:ring-beige/30 transition-all shadow-sm"><summary class="flex justify-between items-center font-bold text-gray-900 list-none select-none"><div class="flex items-center gap-3"><i class="fa fa-user-tag text-beige text-xl"></i><span class="uppercase tracking-wider text-sm">Quiénes Somos</span></div><span class="text-gray-400 group-open:rotate-180 transition"><i class="fa fa-chevron-down"></i></span></summary><div class="mt-6 text-gray-800 text-sm border-t pt-4 font-medium"><p>Papajose SPA nació hace un año enfocada en el servicio...</p></div></details>
-            <details class="group glass-panel rounded-2xl p-6 cursor-pointer open:ring-1 open:ring-beige/30 transition-all shadow-sm"><summary class="flex justify-between items-center font-bold text-gray-900 list-none select-none"><div class="flex items-center gap-3"><i class="fa fa-shield-alt text-beige text-xl"></i><span class="uppercase tracking-wider text-sm">Pagos</span></div><span class="text-gray-400 group-open:rotate-180 transition"><i class="fa fa-chevron-down"></i></span></summary><div class="mt-6 text-gray-800 text-sm border-t pt-4 font-medium"><p>Pago directo a Cuenta Empresa. Boleta/Factura en 24 horas.</p></div></details>
-            <details class="group glass-panel rounded-2xl p-6 cursor-pointer open:ring-1 open:ring-beige/30 transition-all shadow-sm"><summary class="flex justify-between items-center font-bold text-gray-900 list-none select-none"><div class="flex items-center gap-3"><i class="fa fa-rotate-left text-beige text-xl"></i><span class="uppercase tracking-wider text-sm">Garantía</span></div><span class="text-gray-400 group-open:rotate-180 transition"><i class="fa fa-chevron-down"></i></span></summary><div class="mt-6 text-gray-800 text-sm border-t pt-4 font-medium"><p>Garantía total por fallas con envío gratis.</p></div></details>
-        </section>
-    </main>
-
-    <aside id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-[420px] bg-white z-[160] shadow-2xl transform translate-x-full flex flex-col h-full">
-        <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
-            <h2 class="text-xl font-black uppercase text-gray-800">Tu Carrito</h2>
-            <button onclick="window.forceCloseCart()" class="text-gray-400 hover:text-black transition text-xl w-10 h-10 rounded-full hover:bg-white flex items-center justify-center">✕</button>
-        </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
-        <div class="p-5 bg-white border-t border-gray-50 shadow-sm flex-shrink-0">
-            <div class="mb-4 flex gap-4 text-xs">
-                <div class="flex-1"><h4 class="font-bold mb-2">Envío</h4><label class="flex items-center gap-2 p-2 border rounded"><input type="radio" name="tipo_envio" value="rm" checked onchange="window.calcularTotal()"><span>RM ($3.500)</span></label><label class="flex items-center gap-2 p-2 border rounded mt-1"><input type="radio" name="tipo_envio" value="regiones" onchange="window.calcularTotal()"><span>Regiones</span></label></div>
-                <div class="flex-1"><h4 class="font-bold mb-2">Doc</h4><label class="flex items-center gap-2 p-2 border rounded"><input type="radio" name="tipo_doc" value="Boleta" checked><span>Boleta</span></label><label class="flex items-center gap-2 p-2 border rounded mt-1"><input type="radio" name="tipo_doc" value="Factura"><span>Factura</span></label></div>
-            </div>
-            <div class="flex justify-between text-2xl font-black text-gray-900 mb-4"><span>Total Final</span><span id="cart-total">$0</span></div>
-            <button onclick="window.enviarPedidoYLimpiar()" class="w-full bg-black text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-beige transition flex items-center justify-center gap-3">Ir a Pagar <i class="fab fa-whatsapp"></i></button>
-        </div>
-    </aside>
-
-    <div id="mobile-sticky-bar" onclick="window.toggleCart()" class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 p-4 z-[60] shadow-lg flex justify-between items-center lg:hidden hidden transition-transform duration-300">
-        <div class="flex flex-col pointer-events-none"><span class="text-[10px] text-gray-400 font-bold uppercase">Productos</span><span id="mobile-total-sticky" class="text-xl font-black text-gray-900">$0</span></div>
-        <button class="bg-black text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl">Ver Carrito</button>
-    </div>
-    <button id="desktop-floating-cart" onclick="window.toggleCart()" class="hidden lg:flex fixed bottom-8 right-8 bg-black text-white px-6 py-3 rounded-full font-bold shadow-2xl z-[55] hover:scale-105 transition items-center gap-3 border-2 border-white hover:bg-beige"><i class="fa fa-shopping-bag"></i><span id="desktop-floating-total">$0</span></button>
-
-    <div id="product-modal" onclick="if(event.target === this) window.closeProductModal()" class="fixed inset-0 z-[200] bg-black bg-opacity-50 hidden items-center justify-center p-4">
-        <div class="bg-white product-modal-desktop w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col rounded-2xl shadow-2xl relative">
-            <button onclick="window.closeProductModal()" class="absolute top-4 right-4 z-50 bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg text-lg hover:text-red-500 transition">✕</button>
-            <div id="modal-content" class="overflow-y-auto flex-1"></div>
-        </div>
-    </div>
-    <div id="toast-modal" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-[200] hidden transition-all w-11/12 max-w-sm toast-enter"><div class="bg-gray-900 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4"><div class="flex items-center gap-3" id="toast-content"></div></div></div>
-
+    <!-- Tu configuración de Firebase EXACTA -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-        // TUS CLAVES REALES DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyB2HFLorxznlDAEWdgOWQbzexkQF19g6Bo",
             authDomain: "mitienda-dbe60.firebaseapp.com",
@@ -234,279 +60,439 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
         const dbFirestore = getFirestore(app);
 
-        const WHATSAPP_NUM = "56936416743"; 
-        let db = [];
-        let cart = JSON.parse(localStorage.getItem('papajose_cart')) || [];
-        let currentFilteredList = []; 
-        let currentPage = 1;
-        const itemsPerPage = 20; 
+        // Guardar en window para acceso global
+        window.firebaseApp = app;
+        window.firebaseDb = dbFirestore;
+        window.firebaseCollection = collection;
+        window.firebaseGetDocs = getDocs;
+        
+        console.log("Firebase 12.8.0 inicializado correctamente");
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css">
+    
+    <style>
+        /* --- ESTILOS VISUALES --- */
+        :root { 
+            --beige: #D2B48C; 
+            --soft-bg: #FAFAF9; 
+            --dark-text: #1a1a1a; 
+            --pastel-menu: #FFFBF2; 
+        }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            color: var(--dark-text);
+            background-image: url('imagenes/fondo.webp');
+            background-size: cover;
+            background-position: center;
+            background-color: #f0f0f0;
+        }
+
+        /* OPTIMIZACIÓN ANTI-LAG Y IPHONE */
+        @media (min-width: 1024px) {
+            body { background-attachment: fixed; } 
+            .layout-desktop { margin-left: 280px; } 
+            .header-desktop-adjust { padding-left: 280px; }
+            .destacados-grid-pc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        }
+        
+        @media (max-width: 1023px) {
+            body { background-attachment: scroll; } 
+            
+            /* SLIDER MÓVIL ACELERADO */
+            .mobile-slider { 
+                display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 1rem; padding-bottom: 1rem; scrollbar-width: none; 
+                -webkit-overflow-scrolling: touch;
+            }
+            .mobile-slider::-webkit-scrollbar { display: none; }
+            
+            .slider-card { 
+                flex: 0 0 75%; scroll-snap-align: center;
+                transform: translateZ(0); will-change: transform; 
+            }
+            
+            body { padding-bottom: 120px; } 
+            
+            .sticky-search-container {
+                position: sticky; top: 80px; z-index: 40;
+                background-color: rgba(255, 255, 255, 0.98);
+                padding: 10px 16px 15px 16px; margin-left: -16px; margin-right: -16px; margin-bottom: 20px;
+                border-bottom: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            }
+
+            /* FIX: Prevenir Zoom en iOS al tocar inputs */
+            input, select, textarea { font-size: 16px !important; }
+            
+            /* Prevenir double tap to zoom */
+            button, a { touch-action: manipulation; }
+        }
+
+        .glass-panel {
+            background-color: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .menu-bg-color { background-color: var(--pastel-menu); }
+
+        .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .no-stock { filter: grayscale(100%); opacity: 0.6; }
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+        
+        .toast-enter { transform: translate(-50%, 100%); opacity: 0; }
+        .toast-visible { transform: translate(-50%, 0); opacity: 1; }
+
+        .overlay-base {
+            position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+            opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
+        }
+        .overlay-base.open { opacity: 1; visibility: visible; }
+        
+        #menu-overlay { z-index: 145; } 
+        #cart-overlay { z-index: 155; } 
+
+        #cart-sidebar, #left-sidebar { will-change: transform; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+        #mobile-sticky-bar { transition: transform 0.3s ease; }
+
+        /* Estilo para Lazy Load */
+        img.lazy-load { opacity: 0; transition: opacity 0.3s; }
+        img:not(.lazy-load) { opacity: 1; }
+
+        /* Modal de producto en desktop - MÁS PEQUEÑO */
+        @media (min-width: 768px) {
+            .product-modal-desktop {
+                max-width: 800px;
+                max-height: 85vh;
+                margin: 5vh auto;
+                border-radius: 24px;
+                overflow: hidden;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        /* Animación suave para scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Placeholder SVG para imágenes */
+        .img-placeholder {
+            background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%);
+            background-size: 20px 20px;
+        }
+
+    </style>
+</head>
+<body class="font-sans antialiased overflow-x-hidden">
+
+    <header class="fixed top-0 w-full bg-white z-[50] border-b border-gray-50 h-20 shadow-sm transition-all duration-300 header-desktop-adjust">
+        <div class="h-full flex justify-between items-center px-6 md:px-10 relative">
+            <div class="flex items-center z-20">
+                <button onclick="toggleMobileMenu()" 
+                        aria-label="Abrir menú de navegación"
+                        aria-expanded="false"
+                        class="lg:hidden text-2xl text-beige hover:text-black transition"><i class="fa fa-bars"></i></button>
+            </div>
+            
+            <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full pointer-events-none z-30">
+                <div onclick="resetAndScrollToTop()" class="pointer-events-auto inline-flex items-center gap-3 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full border border-gray-50 shadow-sm cursor-pointer hover:bg-gray-50 transition-all active:scale-95">
+                    <img src="imagenes/logo.webp" class="w-8 h-8 rounded-full object-cover bg-white shadow-sm" alt="Logo Papajose SPA" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23D2B48C%22/%3E%3Ctext x=%2216%22 y=%2216%22 font-family=%22Arial%22 font-size=%2210%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22%3EPJ%3C/text%3E%3C/svg%3E'">
+                    <h1 class="text-lg md:text-2xl font-black tracking-widest text-gray-800 uppercase whitespace-nowrap">Papajose <span class="text-beige">SPA</span></h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 z-20 bg-white pl-4">
+                <div class="hidden lg:block relative group">
+                    <input type="text" onkeyup="buscar(this.value)" placeholder="Buscar producto..." class="bg-gray-50/50 border border-transparent rounded-full px-5 py-2.5 w-64 text-sm focus:ring-1 focus:ring-beige focus:bg-white focus:border-beige transition-all">
+                    <i class="fa fa-search absolute right-4 top-3 text-beige"></i>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <span id="header-total" class="hidden md:block font-bold text-gray-700 text-sm opacity-0 transition-opacity duration-300">$0</span>
+                    <button onclick="toggleCart()" 
+                            aria-label="Carrito de compras" 
+                            aria-expanded="false" 
+                            aria-controls="cart-sidebar"
+                            class="relative p-2 group" id="cart-btn-header">
+                        <i class="fa fa-shopping-bag text-2xl text-gray-400 group-hover:text-black transition" id="cart-icon"></i>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white scale-0 transition-transform duration-300">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="menu-overlay" class="overlay-base" onclick="handleBackAction()"></div>
+    <div id="cart-overlay" class="overlay-base" onclick="forceCloseCart()"></div>
+
+    <aside id="left-sidebar" class="fixed inset-y-0 left-0 w-[280px] menu-bg-color border-r border-gray-100 z-[150] pt-24 transform -translate-x-full lg:translate-x-0 shadow-2xl flex flex-col justify-between h-full">
+        <div class="p-6 overflow-y-auto">
+            <div class="flex justify-between items-center mb-8 lg:hidden">
+                <span class="font-bold text-gray-400 uppercase tracking-widest text-xs">Navegación</span>
+                <button onclick="handleBackAction()" class="text-2xl text-gray-500">✕</button>
+            </div>
+            <nav class="space-y-2" id="nav-categorias"></nav>
+        </div>
+        <div class="p-8 border-t border-gray-100 bg-white/50">
+            <h4 class="text-xs font-black uppercase text-gray-400 mb-4 tracking-widest">Síguenos</h4>
+            <div class="flex gap-6 text-2xl text-gray-400">
+                <a href="https://www.instagram.com/comercializadora_papa_jose_spa" target="_blank" class="hover:text-beige transition hover:-translate-y-1"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.tiktok.com/@papa_jose_spa" target="_blank" class="hover:text-beige transition hover:-translate-y-1"><i class="fab fa-tiktok"></i></a>
+                <a href="https://wa.me/56936416743" target="_blank" class="hover:text-beige transition hover:-translate-y-1"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            <p class="text-[10px] text-gray-300 mt-4">© 2026 Papajose SPA</p>
+        </div>
+    </aside>
+
+    <main id="main-content" class="pt-28 px-4 md:px-12 layout-desktop min-h-screen">
+        
+        <div class="lg:hidden sticky-search-container">
+            <div class="relative w-full">
+                <input type="text" onkeyup="buscar(this.value)" placeholder="¿Qué buscas hoy?" class="w-full bg-gray-50 border border-transparent p-4 pl-12 rounded-2xl shadow-sm focus:ring-1 focus:ring-beige focus:bg-white transition">
+                <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-beige"></i>
+            </div>
+        </div>
+
+        <section class="relative glass-panel text-gray-800 py-12 px-6 md:px-12 mb-12 rounded-[2rem] overflow-hidden shadow-lg fade-in-up">
+            <div class="relative z-10 max-w-6xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="flex justify-center mb-4">
+                        <div class="w-20 h-20 rounded-full bg-white p-1 shadow-lg flex items-center justify-center">
+                            <img src="imagenes/logo.webp" class="w-full h-full rounded-full object-cover" alt="Logo Hero" onerror="this.onerror=null; this.classList.add('img-placeholder')">
+                        </div>
+                    </div>
+                    <span class="inline-block py-1.5 px-4 rounded-full bg-black text-white font-bold text-[10px] md:text-xs tracking-widest uppercase mb-4 shadow-sm">Comercializadora Online</span>
+                    <h2 class="text-3xl md:text-5xl font-black mb-4 leading-tight text-gray-900 tracking-tight">
+                        Variedad, Calidad y <span class="text-beige italic font-serif">Buenos Precios.</span>
+                    </h2>
+                </div>
+
+                <div class="mt-8 border-t border-gray-200 pt-8">
+                    <h3 class="text-center font-bold text-gray-400 text-xs uppercase tracking-widest mb-6">🔥 Productos Destacados</h3>
+                    <div id="hero-destacados-container" class="mobile-slider destacados-grid-pc pb-2">
+                        <div class="text-center w-full text-gray-400">Cargando desde Firebase...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16 py-10 px-4 bg-white/95 border-2 border-gray-100 rounded-3xl shadow-md">
+            <h3 class="text-center font-black text-gray-900 text-sm uppercase tracking-widest mb-10 border-b pb-4 border-gray-200">
+                <i class="fa fa-check-circle text-green-500 mr-2"></i> Proceso de Compra Seguro
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="flex flex-col items-center group">
+                    <div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-xl mb-4 shadow-lg"><i class="fa fa-hand-pointer"></i></div>
+                    <span class="font-black text-gray-900 text-base">1. Elige</span>
+                    <p class="text-xs font-bold text-gray-500 mt-2 px-2 leading-tight">Selecciona tus productos</p>
+                </div>
+                <div class="flex flex-col items-center group">
+                    <div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-xl mb-4 shadow-lg"><i class="fa fa-whatsapp"></i></div>
+                    <span class="font-black text-gray-900 text-base">2. Valida</span>
+                    <p class="text-xs font-bold text-gray-500 mt-2 px-2 leading-tight">Confirma stock vía WhatsApp</p>
+                </div>
+                <div class="flex flex-col items-center group">
+                    <div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-xl mb-4 shadow-lg"><i class="fa fa-building-columns"></i></div>
+                    <span class="font-black text-gray-900 text-base">3. Paga</span>
+                    <p class="text-xs font-bold text-gray-500 mt-2 px-2 leading-tight">A <strong>Cuenta Empresa</strong></p>
+                </div>
+                <div class="flex flex-col items-center group">
+                    <div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-xl mb-4 shadow-lg"><i class="fa fa-box"></i></div>
+                    <span class="font-black text-gray-900 text-base">4. Recibe</span>
+                    <p class="text-xs font-bold text-gray-500 mt-2 px-2 leading-tight">Envíos a todo Chile</p>
+                </div>
+            </div>
+        </section>
+
+        <div id="loading-msg" class="text-center py-20 glass-panel rounded-2xl mb-10">
+            <i class="fa fa-circle-notch fa-spin text-4xl text-beige mb-4"></i>
+            <p class="text-gray-900 font-bold">Conectando con Firebase...</p>
+        </div>
+
+        <section id="seccion-catalogo" class="hidden mb-12">
+            <div class="glass-panel p-6 rounded-2xl mb-6 flex items-center justify-between shadow-sm">
+                <h2 id="titulo-grid" class="text-xl font-black text-gray-900 uppercase tracking-widest">Catálogo Firebase</h2>
+                <span id="cantidad-productos" class="text-xs font-bold text-white bg-black px-3 py-1.5 rounded-lg">0</span>
+            </div>
+            
+            <div id="grid-productos" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 mb-8"></div>
+            
+            <div id="pagination-controls" class="flex justify-center items-center gap-4 py-6 hidden">
+                <button onclick="changePage(-1)" id="btn-prev" class="bg-white px-4 py-2 rounded-full shadow font-bold text-sm border">Anterior</button>
+                <span id="page-indicator" class="font-bold text-gray-900 bg-white px-4 py-2 rounded-full shadow border">Pág 1</span>
+                <button onclick="changePage(1)" id="btn-next" class="bg-black text-white px-6 py-2 rounded-full shadow font-bold text-sm disabled:opacity-50">Siguiente</button>
+            </div>
+        </section>
+
+        <section class="max-w-3xl mx-auto mb-20 space-y-4">
+            
+            <details class="group glass-panel rounded-2xl p-6 cursor-pointer open:ring-1 open:ring-beige/30 transition-all shadow-sm">
+                <summary class="flex justify-between items-center font-bold text-gray-900 list-none select-none">
+                    <div class="flex items-center gap-3"><i class="fa fa-user-tag text-beige text-xl"></i><span class="uppercase tracking-wider text-sm">Quiénes Somos</span></div>
+                    <span class="text-gray-400 group-open:rotate-180 transition-transform duration-300"><i class="fa fa-chevron-down"></i></span>
+                </summary>
+                <div class="mt-6 text-gray-800 text-sm md:text-base leading-relaxed border-t border-gray-200 pt-4 space-y-4 animate-fade-in font-medium">
+                    <p><strong>Papajose SPA</strong> nació hace un año como una iniciativa digital enfocada en el servicio. Tras miles de ventas exitosas en plataformas como Mercado Libre y un aprendizaje constante sobre lo que nuestros clientes realmente necesitan, decidimos dar <strong>el gran salto</strong>.</p>
+                    <p>Hoy evolucionamos con nuestra propia plataforma para ofrecerte un <strong>trato directo, sin comisiones ocultas y precios realmente justos</strong>. Somos una empresa joven, gestionada por personas que entienden el valor de tu confianza y seguridad. ¡Gracias por preferirnos!</p>
+                </div>
+            </details>
+
+            <details class="group glass-panel rounded-2xl p-6 cursor-pointer open:ring-1 open:ring-beige/30 transition-all shadow-sm">
+                <summary class="flex justify-between items-center font-bold text-gray-900 list-none select-none">
+                    <div class="flex items-center gap-3"><i class="fa fa-shield-alt text-beige text-xl"></i><span class="uppercase tracking-wider text-sm">Confianza y Pagos</span></div>
+                    <span class="text-gray-400 group-open:rotate-180 transition-transform duration-300"><i class="fa fa-chevron-down"></i></span>
+                </summary>
+                <div class="mt-6 text-gray-800 text-sm md:text-base leading-relaxed border-t border-gray-200 pt-4 space-y-4 animate-fade-in font-medium">
+                    <p>🤝 <strong>Sin intermediarios:</strong> No usamos Webpay para evitar comisiones extra. El pago se realiza mediante transferencia directa a nuestra <strong>Cuenta Empresa</strong> verificada.</p>
+                    <p>📄 <strong>Documentación:</strong> Tu Boleta o Factura electrónica se genera y envía vía WhatsApp o Correo en un plazo máximo de <strong>24 horas</strong> tras confirmar tu pago.</p>
+                </div>
+            </details>
+
+            <details class="group glass-panel rounded-2xl p-6 cursor-pointer open:ring-1 open:ring-beige/30 transition-all shadow-sm">
+                <summary class="flex justify-between items-center font-bold text-gray-900 list-none select-none">
+                    <div class="flex items-center gap-3"><i class="fa fa-rotate-left text-beige text-xl"></i><span class="uppercase tracking-wider text-sm">Garantía y Devoluciones</span></div>
+                    <span class="text-gray-400 group-open:rotate-180 transition-transform duration-300"><i class="fa fa-chevron-down"></i></span>
+                </summary>
+                <div class="mt-6 text-gray-800 text-sm md:text-base leading-relaxed border-t border-gray-200 pt-4 space-y-4 animate-fade-in font-medium">
+                    <p>✅ <strong>Garantía Real:</strong> Si recibes un producto defectuoso, te lo cambiamos o devolvemos tu dinero con <strong>costo de envío GRATIS</strong> para ti.</p>
+                    <p>📲 <strong>Fácil Gestión:</strong> Solo contáctanos por WhatsApp, envíanos una foto/video del problema y coordinaremos el retiro y reposición de inmediato.</p>
+                </div>
+            </details>
+
+        </section>
+
+    </main>
+
+    <aside id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-[420px] bg-white z-[160] shadow-2xl transform translate-x-full flex flex-col h-full">
+        <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
+            <h2 class="text-xl font-black uppercase text-gray-800">Tu Carrito</h2>
+            <button onclick="forceCloseCart()" class="text-gray-400 hover:text-black transition text-xl w-10 h-10 rounded-full hover:bg-white flex items-center justify-center">✕</button>
+        </div>
+        
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+        
+        <div class="p-5 bg-white border-t border-gray-50 shadow-[0_-5px_20px_rgba(0,0,0,0.05)] flex-shrink-0">
+            <div class="mb-4 flex gap-4 text-xs">
+                <div class="flex-1">
+                     <h4 class="font-bold text-[10px] uppercase text-gray-400 mb-2 tracking-wider">Envío (Obligatorio)</h4>
+                     <label class="flex items-center gap-2 cursor-pointer p-2 border border-gray-100 rounded-lg hover:border-beige transition bg-gray-50 mb-2">
+                        <input type="radio" name="tipo_envio" value="rm" checked onchange="calcularTotal()" class="accent-black w-3 h-3">
+                        <div><span class="block font-bold text-gray-700">RM</span><span class="text-[10px] text-gray-500">+$3.500</span></div>
+                     </label>
+                     <label class="flex items-center gap-2 cursor-pointer p-2 border border-gray-100 rounded-lg hover:border-beige transition bg-gray-50">
+                        <input type="radio" name="tipo_envio" value="regiones" onchange="calcularTotal()" class="accent-black w-3 h-3">
+                        <div><span class="block font-bold text-gray-700">Regiones</span><span class="text-[10px] text-gray-500">Por pagar (Starken)</span></div>
+                     </label>
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-[10px] uppercase text-gray-400 mb-2 tracking-wider">Doc.</h4>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border border-gray-100 rounded-lg hover:border-beige transition bg-gray-50 mb-2">
+                        <input type="radio" name="tipo_doc" value="Boleta" checked class="accent-black w-3 h-3">
+                        <span class="font-bold text-gray-700">Boleta</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer p-2 border border-gray-100 rounded-lg hover:border-beige transition bg-gray-50">
+                        <input type="radio" name="tipo_doc" value="Factura" class="accent-black w-3 h-3">
+                        <span class="font-bold text-gray-700">Factura</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex justify-between text-2xl font-black text-gray-900 mb-4">
+                <span>Total Final</span> 
+                <span id="cart-total">$0</span>
+            </div>
+            <button onclick="enviarPedidoYLimpiar()" class="w-full bg-black text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-beige transition-all shadow-lg flex items-center justify-center gap-3 text-sm">
+                Ir a Pagar <i class="fab fa-whatsapp text-lg"></i>
+            </button>
+        </div>
+    </aside>
+
+    <div id="mobile-sticky-bar" onclick="toggleCart()" class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 p-4 z-[60] shadow-lg flex justify-between items-center lg:hidden hidden fade-in-up cursor-pointer">
+        <div class="flex flex-col pointer-events-none">
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Productos</span>
+            <span id="mobile-total-sticky" class="text-xl font-black text-gray-900">$0</span>
+        </div>
+        <button class="bg-black text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl">Ver Carrito <i class="fa fa-shopping-cart"></i></button>
+    </div>
+
+    <button id="desktop-floating-cart" onclick="toggleCart()" class="hidden lg:flex fixed bottom-8 right-8 bg-black text-white px-6 py-3 rounded-full font-bold shadow-2xl z-[55] hover:scale-105 transition-transform items-center gap-3 border-2 border-white hover:bg-beige">
+        <i class="fa fa-shopping-bag"></i>
+        <span id="desktop-floating-total">$0</span>
+    </button>
+
+    <div id="product-modal" onclick="if(event.target === this) closeProductModal()" class="fixed inset-0 z-[200] bg-black bg-opacity-50 hidden items-center justify-center p-4">
+        <div class="bg-white product-modal-desktop w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col rounded-2xl shadow-2xl relative">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 z-50 bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg text-lg hover:bg-red-100 hover:text-red-500 transition">✕</button>
+            <div id="modal-content" class="overflow-y-auto flex-1"></div>
+        </div>
+    </div>
+    
+    <div id="toast-modal" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-[200] hidden transition-all w-11/12 max-w-sm toast-enter">
+        <div class="bg-gray-900 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3" id="toast-content"></div>
+        </div>
+    </div>
+
+    <!-- SCRIPT PRINCIPAL - TODA LA LÓGICA DE TU SITIO -->
+    <script>
+        // ===== CONFIGURACIÓN GLOBAL =====
+        const WHATSAPP_NUM = "56936416743";
         const PLACEHOLDER_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='14' text-anchor='middle' dy='.3em' fill='%23999'%3ESin Foto%3C/text%3E%3C/svg%3E";
-        let hasOpenedCartAutomatically = false; 
-        let searchTimeout; 
+        
+        // Variables globales del estado
+        let db = []; // Array de productos
+        let cart = JSON.parse(localStorage.getItem('papajose_cart')) || [];
+        let currentFilteredList = [];
+        let currentPage = 1;
+        const itemsPerPage = 20;
+        let hasOpenedCartAutomatically = false;
+        let searchTimeout;
         let costoEnvio = 3500;
 
-        // Exponer funciones globales al HTML
-        window.toggleMobileMenu = () => toggleElement('left-sidebar');
-        window.toggleCart = () => toggleCartLogic();
-        window.handleBackAction = () => history.back();
-        window.forceCloseCart = () => forceCloseAll();
-        window.resetAndScrollToTop = () => { window.buscar(''); window.scrollTo({top:0, behavior:'smooth'}); };
-        
-        window.buscar = (q) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                const txt = q.toLowerCase();
-                currentFilteredList = db.filter(p => p.nombre.toLowerCase().includes(txt) || p.cat.toLowerCase().includes(txt));
-                currentPage=1; renderGrid(currentFilteredList);
-                if(q.length>0) window.scrollTo({top: document.getElementById('seccion-catalogo').offsetTop - 100, behavior:'smooth'});
-            }, 300);
-        };
+        // ===== FUNCIONES GLOBALES EXPORTADAS (PARA HTML) =====
+        window.toggleMobileMenu = toggleMobileMenu;
+        window.toggleCart = toggleCart;
+        window.handleBackAction = handleBackAction;
+        window.forceCloseCart = forceCloseCart;
+        window.resetAndScrollToTop = resetAndScrollToTop;
+        window.buscar = buscar;
+        window.openProduct = openProduct;
+        window.closeProductModal = closeProductModal;
+        window.addToCart = addToCart;
+        window.cambiarCantidad = cambiarCantidad;
+        window.enviarPedidoYLimpiar = enviarPedidoYLimpiar;
+        window.changePage = changePage;
+        window.calcularTotal = calcularTotal;
 
-        window.openProduct = (id) => {
-            const p = db.find(x => x.id === id);
-            if(!p) return;
-            history.pushState({modal: 'product'}, null, "");
-            
-            // Si la foto está vacía, usamos el placeholder
-            const fotoMostrar = (p.img && p.img.length > 5) ? p.img : PLACEHOLDER_SVG;
-
-            document.getElementById('modal-content').innerHTML = `
-                <div class="p-6 md:p-8 grid md:grid-cols-2 gap-8">
-                    <div class="bg-gray-50 rounded-2xl p-4 flex items-center justify-center">
-                        <img src="${fotoMostrar}" class="max-h-80 object-contain mix-blend-multiply" onerror="this.src='${PLACEHOLDER_SVG}'">
-                    </div>
-                    <div class="flex flex-col justify-center">
-                        <span class="text-beige font-bold uppercase text-xs tracking-widest mb-2">${p.cat}</span>
-                        <h1 class="text-2xl font-black text-gray-900 mb-4">${p.nombre}</h1>
-                        <p class="text-gray-600 mb-6">${p.desc}</p>
-                        <div class="mt-auto border-t pt-6 flex justify-between items-center">
-                            <span class="text-3xl font-black">$${p.precio.toLocaleString()}</span>
-                            <button onclick="window.addToCart('${p.id}'); window.closeProductModal()" class="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-beige transition">Agregar</button>
-                        </div>
-                    </div>
-                </div>`;
-            document.getElementById('product-modal').classList.remove('hidden');
-            document.getElementById('product-modal').classList.add('flex');
-            document.body.classList.add('locked');
-        };
-
-        window.closeProductModal = () => {
-            document.getElementById('product-modal').classList.add('hidden');
-            document.getElementById('product-modal').classList.remove('flex');
-            document.body.classList.remove('locked');
-            history.back();
-        };
-
-        window.addToCart = (id) => {
-            const p = db.find(x => x.id == id);
-            if (!p || !p.disponible) return mostrarToast("Agotado", "error");
-            let item = cart.find(i => i.id == id);
-            if (item) item.qty++; else cart.push({ ...p, qty: 1 });
-            updateCartUI();
-            mostrarToast("Agregado");
-            if(window.innerWidth >= 1024 && !hasOpenedCartAutomatically) { toggleCartLogic(); hasOpenedCartAutomatically=true; }
-        };
-
-        window.cambiarCantidad = (id, n) => {
-            let item = cart.find(x => x.id == id);
-            if(!item) return;
-            item.qty += n;
-            if(item.qty <= 0) cart = cart.filter(i => i.id != id);
-            updateCartUI();
-        };
-
-        window.enviarPedidoYLimpiar = () => {
-            if(cart.length===0) return;
-            const radiosEnvio = document.getElementsByName('tipo_envio');
-            let tipoEnvio = "RM"; for(const r of radiosEnvio) if(r.checked && r.value==='regiones') tipoEnvio="Regiones";
-            const radiosDoc = document.getElementsByName('tipo_doc');
-            let tipoDoc = "Boleta"; for(const r of radiosDoc) if(r.checked) tipoDoc=r.value;
-            
-            const total = document.getElementById('cart-total').innerText;
-            const items = cart.map(p => `• (${p.qty}) ${p.nombre} - $${(p.precio*p.qty).toLocaleString()}`).join('\n');
-            const msg = `*HOLA PAPAJOSE* 👋\nPedido Web:\n\n${items}\n\n*ENVÍO:* ${tipoEnvio}\n*DOC:* ${tipoDoc}\n*TOTAL:* ${total}`;
-            
-            window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`);
-            setTimeout(() => { cart=[]; updateCartUI(); forceCloseAll(); }, 1000);
-        };
-
-        window.changePage = (d) => {
-            const totalPages = Math.ceil(currentFilteredList.length/itemsPerPage);
-            const neo = currentPage+d;
-            if(neo>=1 && neo<=totalPages) { currentPage=neo; renderGrid(currentFilteredList); window.scrollTo({top: document.getElementById('seccion-catalogo').offsetTop-100, behavior:'smooth'}); }
-        };
-
-        window.calcularTotal = () => updateCartUI(); 
-
-        // --- CORE FIREBASE (DESCARGA DE DATOS) ---
-        (async function init() {
+        // ===== INICIALIZACIÓN =====
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // Descargamos todo de la nube
-                const q = query(collection(dbFirestore, "productos")); 
-                const snap = await getDocs(q);
-                const raw = [];
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    d.id_firebase = doc.id; 
-                    raw.push(d);
-                });
+                // 1. Cargar productos desde Firebase
+                await cargarProductosDesdeFirebase();
                 
-                // Mapeo seguro
-                db = raw.map((item, idx) => ({
-                    id: item.id_csv || idx + 1, 
-                    nombre: item.nombre || "Sin Nombre",
-                    precio: parseInt(item.precio) || 0,
-                    cat: item.categoria || "Varios",
-                    desc: item.descripcion || "",
-                    img: (item.foto && item.foto.length > 5) ? item.foto : PLACEHOLDER_SVG,
-                    disponible: (item.stock === 'si')
-                }));
-
-                generarCategorias();
-                document.getElementById('loading-msg').classList.add('hidden');
-                document.getElementById('seccion-catalogo').classList.remove('hidden');
-                currentFilteredList = db;
-                renderGrid(db);
-                renderDestacados(db);
-                updateCartUI(); 
-
-            } catch (e) {
-                console.error(e);
-                mostrarToast("Error de conexión con Firebase", "error");
+                // 2. Actualizar UI
+                updateCartUI();
+                initSwipeGestures();
+                
+                // 3. Configurar historial
+                setupHistoryHandling();
+                
+                console.log("✅ Sitio inicializado correctamente");
+            } catch (error) {
+                console.error("❌ Error inicializando:", error);
+                mostrarToast("Error cargando productos", "error");
             }
-        })();
+        });
 
-        // --- UI HELPERS ---
-        function renderGrid(lista) {
-            const el = document.getElementById('grid-productos');
-            document.getElementById('cantidad-productos').innerText = lista.length;
-            if(lista.length===0) { el.innerHTML='<div class="col-span-full py-10 text-center">Sin resultados</div>'; return; }
-            
-            const start = (currentPage-1)*itemsPerPage;
-            el.innerHTML = lista.slice(start, start+itemsPerPage).map(p => `
-                <div class="bg-white rounded-2xl border hover:border-beige transition group relative flex flex-col overflow-hidden shadow-sm">
-                    <div class="h-48 p-2 cursor-pointer relative" onclick="window.openProduct('${p.id}')">
-                        <img src="${p.img}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition" onerror="this.src='${PLACEHOLDER_SVG}'">
-                        ${!p.disponible ? '<span class="absolute top-2 right-2 bg-red-500 text-white text-[10px] px-2 rounded">AGOTADO</span>' : ''}
-                    </div>
-                    <div class="p-3 flex flex-col flex-1">
-                        <h4 class="font-bold text-sm mb-2 line-clamp-2">${p.nombre}</h4>
-                        <div class="mt-auto flex justify-between items-center border-t pt-2">
-                            <span class="font-black text-lg">$${p.precio.toLocaleString()}</span>
-                            <button onclick="window.addToCart('${p.id}')" class="bg-black text-white px-3 py-1 rounded text-xs hover:bg-beige transition">AGREGAR</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-            
-            const totalPages = Math.ceil(lista.length/itemsPerPage);
-            document.getElementById('pagination-controls').classList.toggle('hidden', totalPages<=1);
-            if(totalPages>1) document.getElementById('page-indicator').innerText = `Pág ${currentPage}/${totalPages}`;
-        }
-
-        function renderDestacados(lista) {
-            const dest = lista.filter(x => x.disponible).slice(0, 6);
-            document.getElementById('hero-destacados-container').innerHTML = dest.map(p => `
-                <div class="slider-card bg-white rounded-2xl border p-2 cursor-pointer flex flex-col h-full" onclick="window.openProduct('${p.id}')">
-                    <div class="h-40 relative"><img src="${p.img}" class="w-full h-full object-contain" onerror="this.src='${PLACEHOLDER_SVG}'"><span class="absolute top-0 left-0 bg-black text-white text-[10px] px-2 rounded">TOP</span></div>
-                    <h3 class="font-bold text-xs mt-2 line-clamp-2">${p.nombre}</h3>
-                    <span class="font-black text-sm mt-auto">$${p.precio.toLocaleString()}</span>
-                </div>
-            `).join('');
-        }
-
-        function generarCategorias() {
-            const nav = document.getElementById('nav-categorias');
-            nav.innerHTML = '<button onclick="window.filtrar(\'todas\')" class="w-full text-left px-4 py-3 font-bold bg-gray-900 text-white rounded-xl mb-2">Todo</button>';
-            [...new Set(db.map(x=>x.cat))].sort().forEach(c => {
-                nav.innerHTML += `<button onclick="window.filtrar('${c}')" class="w-full text-left px-4 py-2 hover:bg-gray-100 rounded-lg text-gray-600 text-sm">${c}</button>`;
-            });
-            window.filtrar = (c) => {
-                currentFilteredList = (c==='todas') ? db : db.filter(x=>x.cat===c);
-                currentPage=1; renderGrid(currentFilteredList);
-                if(window.innerWidth<1024) toggleElement('left-sidebar');
-                window.scrollTo({top: document.getElementById('seccion-catalogo').offsetTop-100, behavior:'smooth'});
-            };
-        }
-
-        function updateCartUI() {
-            localStorage.setItem('papajose_cart', JSON.stringify(cart));
-            const count = cart.reduce((a,b)=>a+b.qty,0);
-            document.getElementById('cart-badge').innerText = count;
-            document.getElementById('cart-badge').classList.toggle('scale-0', count===0);
-            
-            const list = document.getElementById('cart-items');
-            if(cart.length===0) {
-                list.innerHTML = '<div class="text-center py-10 opacity-50">Carrito vacío</div>';
-                document.getElementById('header-total').classList.remove('opacity-100');
-                document.getElementById('cart-total').innerText = "$0";
-                return;
-            }
-
-            list.innerHTML = cart.map(p => `
-                <div class="flex items-center gap-3 bg-gray-50 p-2 rounded mb-2">
-                    <img src="${p.img}" class="w-10 h-10 object-contain bg-white" onerror="this.src='${PLACEHOLDER_SVG}'">
-                    <div class="flex-1"><div class="text-xs font-bold truncate w-32">${p.nombre}</div><div class="text-xs">$${(p.precio*p.qty).toLocaleString()}</div></div>
-                    <div class="flex items-center bg-white border rounded"><button onclick="window.cambiarCantidad('${p.id}',1)" class="px-2">+</button><span class="text-xs font-bold">${p.qty}</span><button onclick="window.cambiarCantidad('${p.id}',-1)" class="px-2">-</button></div>
-                </div>`).join('');
-
-            let subtotal = cart.reduce((a,b)=>a+(b.precio*b.qty),0);
-            const radios = document.getElementsByName('tipo_envio');
-            let isRM = true; for(const r of radios) if(r.checked && r.value==='regiones') isRM=false;
-            const envio = isRM ? 3500 : 0;
-            
-            document.getElementById('header-total').innerText = `$${subtotal.toLocaleString()}`;
-            document.getElementById('header-total').classList.add('opacity-100');
-            document.getElementById('cart-total').innerText = `$${(subtotal+envio).toLocaleString()}`;
-            document.getElementById('mobile-total-sticky').innerText = `$${subtotal.toLocaleString()}`;
-        }
-
-        function toggleCartLogic() {
-            const sb = document.getElementById('cart-sidebar');
-            const ov = document.getElementById('cart-overlay');
-            const isClosed = sb.classList.contains('translate-x-full');
-            
-            if(isClosed) {
-                if(cart.length===0) return mostrarToast("Carrito vacío", "info");
-                sb.classList.remove('translate-x-full');
-                ov.classList.add('open');
-                document.body.classList.add('locked');
-                history.pushState({modal:'cart'},null,"");
-            } else {
-                forceCloseAll();
-                history.back();
-            }
-        }
-
-        function forceCloseAll() {
-            document.getElementById('cart-sidebar').classList.add('translate-x-full');
-            document.getElementById('left-sidebar').classList.add('-translate-x-full');
-            document.querySelectorAll('.overlay-base').forEach(o => o.classList.remove('open'));
-            document.body.classList.remove('locked');
-        }
-
-        function toggleElement(id) {
-            const el = document.getElementById(id);
-            const ov = document.getElementById('menu-overlay');
-            if(el.classList.contains('-translate-x-full')) {
-                el.classList.remove('-translate-x-full');
-                ov.classList.add('open');
-                document.body.classList.add('locked');
-                history.pushState({modal:'menu'},null,"");
-            } else {
-                forceCloseAll();
-                history.back();
-            }
-        }
-
-        function mostrarToast(msg, type='success') {
-            const t = document.getElementById('toast-modal');
-            document.getElementById('toast-content').innerHTML = `<span class="font-bold">${msg}</span>`;
-            t.classList.remove('hidden'); t.classList.add('toast-visible');
-            setTimeout(() => { t.classList.remove('toast-visible'); setTimeout(()=>t.classList.add('hidden'),300)}, 2000);
-        }
-    </script>
-</body>
-</html>
+        // ===== FIREBASE - CARGAR PRODUCTOS =====
+        async function cargarProductosDesdeFirebase() {
+            try {
+                // Verificar que Firebase esté cargado
+                if (!window.firebaseDb
