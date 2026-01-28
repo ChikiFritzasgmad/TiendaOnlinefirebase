@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-NDG1TN8LS4"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -12,7 +13,9 @@
       gtag('config', 'G-NDG1TN8LS4');
     </script>
 
+    <!-- Firebase SDKs -->
     <script type="module">
+        // Firebase v9+ (Modular SDK)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
         import { 
@@ -20,14 +23,10 @@
             collection, 
             getDocs,
             query,
-            orderBy,
-            limit,
-            startAfter,
-            where,
-            startAt,
-            endAt
+            orderBy
         } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
+        // Tu configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyB2HFLorxznlDAEWdgOWQbzexkQF19g6Bo",
             authDomain: "mitienda-dbe60.firebaseapp.com",
@@ -38,33 +37,33 @@
             measurementId: "G-JVVGF3TCT4"
         };
 
+        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
+        // Hacer disponibles globalmente para el resto del código
+        window.firebaseApp = app;
         window.firebaseDb = db;
         window.firebaseFunctions = {
-            getDocs, query, orderBy, limit, startAfter, collection, where, startAt, endAt
+            getDocs,
+            query,
+            orderBy,
+            collection
         };
 
-        console.log("Firebase inicializado (Modo Escalable)");
+        console.log("Firebase inicializado correctamente");
         
-        // Marcar que Firebase está listo y llamar a iniciarApp si está definida
-        window.firebaseReady = true;
-        if (window.iniciarApp) {
-            window.iniciarApp();
-        } else {
-            // Si la función aún no está definida, esperar a que se defina (por si el script se carga después)
-            const checkIniciarApp = setInterval(() => {
-                if (window.iniciarApp) {
-                    window.iniciarApp();
-                    clearInterval(checkIniciarApp);
-                }
-            }, 100);
-        }
+        // Cargar productos inmediatamente después de inicializar
+        setTimeout(() => {
+            if (window.cargarProductosDesdeFirebase) {
+                window.cargarProductosDesdeFirebase();
+            }
+        }, 100);
     </script>
 
     <link rel="icon" type="image/webp" href="imagenes/logo.webp">
+
     <title>Papajose SPA | Comercializadora</title>
     <meta name="description" content="Comercializadora de artículos variados. Envíos a todo Chile. Compra segura y trato directo.">
     <meta property="og:title" content="Papajose SPA | Catálogo Online">
@@ -92,6 +91,7 @@
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Eliminamos PapaParse ya que no lo necesitamos más -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css">
     
@@ -113,6 +113,7 @@
             background-color: #f0f0f0;
         }
 
+        /* OPTIMIZACIÓN ANTI-LAG Y IPHONE */
         @media (min-width: 1024px) {
             body { background-attachment: fixed; } 
             .layout-desktop { margin-left: 280px; } 
@@ -123,6 +124,7 @@
         @media (max-width: 1023px) {
             body { background-attachment: scroll; } 
             
+            /* SLIDER MÓVIL ACELERADO */
             .mobile-slider { 
                 display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 1rem; padding-bottom: 1rem; scrollbar-width: none; 
                 -webkit-overflow-scrolling: touch;
@@ -143,8 +145,10 @@
                 border-bottom: 1px solid #f3f4f6; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             }
 
+            /* FIX: Prevenir Zoom en iOS al tocar inputs */
             input, select, textarea { font-size: 16px !important; }
             
+            /* Prevenir double tap to zoom */
             button, a { touch-action: manipulation; }
         }
 
@@ -177,9 +181,11 @@
         #cart-sidebar, #left-sidebar { will-change: transform; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
         #mobile-sticky-bar { transition: transform 0.3s ease; }
 
+        /* Estilo para Lazy Load */
         img.lazy-load { opacity: 0; transition: opacity 0.3s; }
         img:not(.lazy-load) { opacity: 1; }
 
+        /* Modal de producto en desktop - MÁS PEQUEÑO */
         @media (min-width: 768px) {
             .product-modal-desktop {
                 max-width: 800px;
@@ -191,15 +197,18 @@
             }
         }
 
+        /* Animación suave para scroll */
         html {
             scroll-behavior: smooth;
         }
 
+        /* Placeholder SVG para imágenes */
         .img-placeholder {
             background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%);
             background-size: 20px 20px;
         }
 
+        /* Estados de carga */
         .skeleton-loading {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%;
@@ -261,12 +270,7 @@
                 <span class="font-bold text-gray-400 uppercase tracking-widest text-xs">Navegación</span>
                 <button onclick="handleBackAction()" class="text-2xl text-gray-500">✕</button>
             </div>
-            <nav class="space-y-2" id="nav-categorias">
-                <div class="text-center py-4">
-                    <i class="fa fa-spinner fa-spin text-beige"></i>
-                    <p class="text-xs text-gray-500 mt-2">Cargando categorías...</p>
-                </div>
-            </nav>
+            <nav class="space-y-2" id="nav-categorias"></nav>
         </div>
         <div class="p-8 border-t border-gray-100 bg-white/50">
             <h4 class="text-xs font-black uppercase text-gray-400 mb-4 tracking-widest">Síguenos</h4>
@@ -341,9 +345,10 @@
 
         <div id="loading-msg" class="text-center py-20 glass-panel rounded-2xl mb-10">
             <i class="fa fa-circle-notch fa-spin text-4xl text-beige mb-4"></i>
-            <p class="text-gray-900 font-bold">Cargando inventario...</p>
+            <p class="text-gray-900 font-bold">Cargando inventario actualizado...</p>
         </div>
 
+        <!-- Skeleton Loading para productos -->
         <div id="skeleton-loading" class="hidden">
             <div class="glass-panel p-6 rounded-2xl mb-6 flex items-center justify-between shadow-sm">
                 <div class="h-6 w-32 skeleton-loading rounded"></div>
@@ -354,22 +359,9 @@
                     <div class="h-48 md:h-56 skeleton-loading rounded-lg mb-4"></div>
                     <div class="h-4 skeleton-loading rounded mb-2"></div>
                     <div class="h-4 skeleton-loading rounded mb-2 w-3/4"></div>
+                    <div class="h-6 skeleton-loading rounded w-1/2 mt-4"></div>
                 </div>
-                <div class="bg-white rounded-2xl border border-gray-100 p-4">
-                    <div class="h-48 md:h-56 skeleton-loading rounded-lg mb-4"></div>
-                    <div class="h-4 skeleton-loading rounded mb-2"></div>
-                    <div class="h-4 skeleton-loading rounded mb-2 w-3/4"></div>
-                </div>
-                <div class="bg-white rounded-2xl border border-gray-100 p-4">
-                    <div class="h-48 md:h-56 skeleton-loading rounded-lg mb-4"></div>
-                    <div class="h-4 skeleton-loading rounded mb-2"></div>
-                    <div class="h-4 skeleton-loading rounded mb-2 w-3/4"></div>
-                </div>
-                 <div class="bg-white rounded-2xl border border-gray-100 p-4">
-                    <div class="h-48 md:h-56 skeleton-loading rounded-lg mb-4"></div>
-                    <div class="h-4 skeleton-loading rounded mb-2"></div>
-                    <div class="h-4 skeleton-loading rounded mb-2 w-3/4"></div>
-                </div>
+                <!-- Repetir 7 veces más para completar la cuadrícula -->
             </div>
         </div>
 
@@ -381,15 +373,15 @@
             
             <div id="grid-productos" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 mb-8"></div>
             
-            <div id="btn-ver-mas-container" class="col-span-full flex justify-center py-8 hidden">
-                <button onclick="cargarProductosBatch()" id="btn-ver-mas" class="bg-white border-2 border-gray-100 text-gray-700 font-bold py-3 px-8 rounded-full shadow-sm hover:bg-black hover:text-white hover:border-black transition-all transform hover:scale-105">
-                    <span id="btn-ver-mas-text">Ver más productos</span>
-                    <i class="fa fa-arrow-down ml-2"></i>
-                </button>
+            <div id="pagination-controls" class="flex justify-center items-center gap-4 py-6 hidden">
+                <button onclick="changePage(-1)" id="btn-prev" class="bg-white px-4 py-2 rounded-full shadow font-bold text-sm border">Anterior</button>
+                <span id="page-indicator" class="font-bold text-gray-900 bg-white px-4 py-2 rounded-full shadow border">Pág 1</span>
+                <button onclick="changePage(1)" id="btn-next" class="bg-black text-white px-6 py-2 rounded-full shadow font-bold text-sm disabled:opacity-50">Siguiente</button>
             </div>
         </section>
 
         <section class="max-w-3xl mx-auto mb-20 space-y-4">
+            
             <details class="group glass-panel rounded-2xl p-6 cursor-pointer open:ring-1 open:ring-beige/30 transition-all shadow-sm">
                 <summary class="flex justify-between items-center font-bold text-gray-900 list-none select-none">
                     <div class="flex items-center gap-3"><i class="fa fa-user-tag text-beige text-xl"></i><span class="uppercase tracking-wider text-sm">Quiénes Somos</span></div>
@@ -422,6 +414,7 @@
                     <p>📲 <strong>Fácil Gestión:</strong> Solo contáctanos por WhatsApp, envíanos una foto/video del problema y coordinaremos el retiro y reposición de inmediato.</p>
                 </div>
             </details>
+
         </section>
 
     </main>
@@ -497,415 +490,214 @@
     </div>
 
     <script>
+        // ============================================
+        // CONFIGURACIÓN Y VARIABLES GLOBALES
+        // ============================================
         const WHATSAPP_NUM = "56936416743"; 
-        const PLACEHOLDER_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='14' text-anchor='middle' dy='.3em' fill='%23999'%3ESin Foto%3C/text%3E%3C/svg%3E";
         
+        // Variables de estado de la aplicación
+        let db = []; // Base de datos local de productos
         let cart = JSON.parse(localStorage.getItem('papajose_cart')) || [];
-        let displayedProducts = []; 
-        let costoEnvio = 3500;
+        let currentFilteredList = []; // Productos filtrados actualmente
+        let currentPage = 1;
+        const itemsPerPage = 20; 
         
-        const itemsPerPage = 20;
-        let lastVisibleDoc = null;
-        let isFetching = false;
-        let hasMoreProducts = true;
-        let currentCategoryFilter = null;
-        let searchTimeout;
-        let categoriasCargadas = [];
+        // Control de estado
+        let hasOpenedCartAutomatically = false; 
+        let searchTimeout; 
+        let costoEnvio = 3500; 
+        
+        // Placeholder para imágenes
+        const PLACEHOLDER_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='14' text-anchor='middle' dy='.3em' fill='%23999'%3ESin Foto%3C/text%3E%3C/svg%3E";
+
+        // Cache para Firebase
+        let firebaseCache = null;
+        let firebaseLastLoad = 0;
+        const CACHE_DURATION = 15 * 60 * 1000; // 15 minutos
 
         // ============================================
-        // 1. INICIALIZACIÓN
+        // FUNCIONES DE FIREBASE CORREGIDAS
         // ============================================
 
-        window.iniciarApp = async function() {
+        /**
+         * Carga productos desde Firebase Firestore - VERSIÓN CORREGIDA
+         */
+        window.cargarProductosDesdeFirebase = async function() {
             try {
-                // Primero cargar categorías
-                await cargarCategoriasDesdeFirebase();
+                console.log("Iniciando carga de productos desde Firebase...");
                 
-                // Luego cargar productos iniciales
-                await cargarProductosBatch(true);
+                // Mostrar skeleton loading
+                mostrarSkeletonLoading(true);
                 
-                // Iniciar UI del carrito
-                updateCartUI();
+                // Verificar si tenemos cache válido
+                const now = Date.now();
+                const cacheValido = firebaseCache && (now - firebaseLastLoad) < CACHE_DURATION;
                 
-                console.log("App inicializada correctamente");
+                if (cacheValido) {
+                    console.log("Usando cache de Firebase");
+                    procesarProductos(firebaseCache);
+                    mostrarSkeletonLoading(false);
+                    return;
+                }
+                
+                console.log("Cargando datos frescos desde Firebase...");
+                
+                // Verificar que Firebase esté inicializado
+                if (!window.firebaseDb || !window.firebaseFunctions) {
+                    throw new Error("Firebase no está inicializado");
+                }
+                
+                // Referencia a la colección de productos
+                const productosRef = window.firebaseFunctions.collection(window.firebaseDb, 'productos');
+                
+                // Crear query simple SIN filtro 'activo' (porque no existe en tu estructura)
+                // Solo ordenar por nombre
+                const q = window.firebaseFunctions.query(
+                    productosRef,
+                    window.firebaseFunctions.orderBy('nombre')
+                );
+                
+                // Obtener documentos
+                const querySnapshot = await window.firebaseFunctions.getDocs(q);
+                
+                if (querySnapshot.empty) {
+                    console.warn("No se encontraron productos en Firebase");
+                    mostrarToast("No hay productos disponibles", "info");
+                    mostrarSkeletonLoading(false);
+                    return;
+                }
+                
+                // Procesar cada documento
+                const productos = [];
+                let contador = 0;
+                
+                querySnapshot.forEach((doc) => {
+                    try {
+                        const data = doc.data();
+                        contador++;
+                        
+                        // Sanitizar y validar datos
+                        const sanitize = (text) => text ? text.toString().replace(/[<>"']/g, '') : "";
+                        
+                        // Obtener URL de imagen
+                        let imagenUrl = data.foto || '';
+                        let imgFinal = PLACEHOLDER_SVG;
+                        
+                        // Procesar URL de imagen
+                        if (imagenUrl && imagenUrl.trim() !== '') {
+                            imagenUrl = imagenUrl.trim();
+                            // Validar si es una URL válida
+                            if (imagenUrl.startsWith('http://') || imagenUrl.startsWith('https://') || 
+                                imagenUrl.startsWith('//') || imagenUrl.startsWith('/') ||
+                                imagenUrl.includes('.webp') || imagenUrl.includes('.jpg') || 
+                                imagenUrl.includes('.jpeg') || imagenUrl.includes('.png')) {
+                                imgFinal = imagenUrl;
+                            }
+                        }
+                        
+                        // Determinar disponibilidad basado en stock
+                        // Según tu estructura, stock es string "si" o "no"
+                        let rawStock = (data.stock || '').toString().toLowerCase().trim();
+                        let disponible = rawStock === 'si';
+                        
+                        // Convertir precio a número (ya debería ser número)
+                        let precio = 0;
+                        if (typeof data.precio === 'number') {
+                            precio = data.precio;
+                        } else if (typeof data.precio === 'string') {
+                            precio = parseInt(data.precio.toString().replace(/[^0-9]/g, '')) || 0;
+                        }
+                        
+                        // Crear objeto de producto con tu estructura exacta
+                        const producto = {
+                            id: doc.id, // Usar ID del documento de Firestore
+                            nombre: sanitize(data.nombre || "Sin Nombre"),
+                            precio: precio,
+                            cat: sanitize(data.categoria || "Varios"),
+                            desc: sanitize(data.descripcion || ""),
+                            img: imgFinal,
+                            disponible: disponible,
+                            // Campos adicionales según tu estructura
+                            fecha_carga: data.fecha_carga || null,
+                            id_csv: data.id_csv || ''
+                        };
+                        
+                        productos.push(producto);
+                        
+                    } catch (error) {
+                        console.error("Error procesando documento:", doc.id, error);
+                        // Continuar con el siguiente producto
+                    }
+                });
+                
+                console.log(`Productos cargados desde Firebase: ${productos.length} de ${contador} procesados`);
+                
+                // Si no hay productos válidos
+                if (productos.length === 0) {
+                    throw new Error("No se pudieron procesar los productos");
+                }
+                
+                // Actualizar cache
+                firebaseCache = productos;
+                firebaseLastLoad = now;
+                
+                // Procesar productos
+                procesarProductos(productos);
+                
             } catch (error) {
-                console.error("Error iniciando app:", error);
-                mostrarToast("Error al cargar la aplicación", "error");
-                // Intentar cargar categorías por defecto
-                generarMenuCategoriasSimulado();
-                await cargarProductosBatch(true);
+                console.error("Error cargando productos desde Firebase:", error);
+                
+                // Intentar usar cache si existe
+                if (firebaseCache && firebaseCache.length > 0) {
+                    console.log("Usando cache debido a error");
+                    procesarProductos(firebaseCache);
+                } else {
+                    // Mostrar mensaje de error en la interfaz
+                    document.getElementById('loading-msg').innerHTML = `
+                        <div class="text-center">
+                            <i class="fa fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                            <p class="text-gray-900 font-bold mb-2">Error cargando productos</p>
+                            <p class="text-gray-600 text-sm mb-4">Detalle: ${error.message || "Error desconocido"}</p>
+                            <button onclick="cargarProductosDesdeFirebase()" class="mt-4 bg-beige text-white px-4 py-2 rounded-lg font-bold">
+                                Reintentar
+                            </button>
+                        </div>`;
+                    mostrarToast("Error cargando productos. Intenta recargar la página.", "error");
+                }
+            } finally {
+                mostrarSkeletonLoading(false);
             }
         };
 
-        // ============================================
-        // 2. CARGA DE CATEGORÍAS DINÁMICAS
-        // ============================================
-
-        async function cargarCategoriasDesdeFirebase() {
+        /**
+         * Cargar un producto individual por ID desde Firebase
+         */
+        async function cargarProductoIndividual(id) {
             try {
-                // Consulta para obtener categorías únicas
-                const productosRef = window.firebaseFunctions.collection(window.firebaseDb, 'productos');
-                const q = window.firebaseFunctions.query(
-                    productosRef,
-                    window.firebaseFunctions.orderBy('categoria'),
-                    window.firebaseFunctions.limit(100) // Limitamos para no sobrecargar
-                );
-                
-                const snapshot = await window.firebaseFunctions.getDocs(q);
-                const categoriasSet = new Set();
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (data.categoria) {
-                        categoriasSet.add(data.categoria);
-                    }
-                });
-                
-                categoriasCargadas = Array.from(categoriasSet).sort();
-                
-                if (categoriasCargadas.length > 0) {
-                    generarMenuCategorias(categoriasCargadas);
-                } else {
-                    // Si no hay categorías, usar las por defecto
-                    generarMenuCategoriasSimulado();
+                // Para esta versión simple, buscamos en el cache primero
+                if (firebaseCache) {
+                    const producto = firebaseCache.find(p => p.id === id);
+                    if (producto) return producto;
                 }
                 
+                // Si no está en cache, cargar desde la base de datos local
+                const producto = db.find(p => p.id === id);
+                if (producto) return producto;
+                
+                return null;
             } catch (error) {
-                console.error("Error cargando categorías:", error);
-                // Usar categorías por defecto
-                generarMenuCategoriasSimulado();
-            }
-        }
-
-        function generarMenuCategorias(categorias) {
-            const nav = document.getElementById('nav-categorias');
-            nav.innerHTML = ''; 
-            
-            const btnTodas = document.createElement('button');
-            btnTodas.className = "w-full text-left px-5 py-3 rounded-xl bg-gray-50 font-bold text-beige flex items-center gap-3 transition-all group border-l-4 border-beige";
-            btnTodas.id = "btn-todas";
-            btnTodas.onclick = () => filtrar('todas', btnTodas);
-            btnTodas.innerHTML = `<i class="fa fa-border-all text-beige group-hover:scale-110 transition w-5 text-center"></i> Todo`;
-            nav.appendChild(btnTodas);
-            
-            categorias.forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-left px-5 py-3 rounded-xl hover:bg-gray-50 font-medium text-gray-600 flex items-center gap-3 transition-all group";
-                btn.onclick = () => filtrar(cat, btn);
-                btn.innerHTML = `<i class="fa fa-chevron-right text-gray-300 text-xs group-hover:text-beige transition"></i> ${cat}`;
-                nav.appendChild(btn);
-            });
-        }
-
-        function generarMenuCategoriasSimulado() {
-            const categoriasManuales = [
-                "Alimentos de juguete", 
-                "Juguetes", 
-                "Hogar", 
-                "Papelería",
-                "Accesorios"
-            ]; 
-            generarMenuCategorias(categoriasManuales);
-        }
-
-        // ============================================
-        // 3. CARGA PAGINADA DE PRODUCTOS
-        // ============================================
-
-        async function cargarProductosBatch(isReset = false) {
-            if (isFetching || (!hasMoreProducts && !isReset)) return;
-            
-            isFetching = true;
-            
-            // Actualizar estado del botón
-            if (!isReset) {
-                const btn = document.getElementById('btn-ver-mas');
-                if (btn) {
-                    btn.disabled = true;
-                    btn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Cargando...`;
-                }
-            }
-            
-            if (isReset) {
-                mostrarSkeletonLoading(true);
-                lastVisibleDoc = null;
-                hasMoreProducts = true;
-                displayedProducts = [];
-            }
-
-            try {
-                const productosRef = window.firebaseFunctions.collection(window.firebaseDb, 'productos');
-                let constraints = [];
-
-                if (currentCategoryFilter && currentCategoryFilter !== 'todas') {
-                    constraints.push(window.firebaseFunctions.where('categoria', '==', currentCategoryFilter));
-                }
-
-                constraints.push(window.firebaseFunctions.orderBy('nombre'));
-
-                if (!isReset && lastVisibleDoc) {
-                    constraints.push(window.firebaseFunctions.startAfter(lastVisibleDoc));
-                }
-
-                constraints.push(window.firebaseFunctions.limit(itemsPerPage));
-
-                const q = window.firebaseFunctions.query(productosRef, ...constraints);
-                const snapshot = await window.firebaseFunctions.getDocs(q);
-
-                const totalDocs = snapshot.docs.length;
-                if (totalDocs > 0) {
-                    lastVisibleDoc = snapshot.docs[totalDocs - 1];
-                }
-                
-                hasMoreProducts = totalDocs === itemsPerPage;
-
-                const nuevos = [];
-                snapshot.forEach(doc => {
-                    nuevos.push(formatearProducto(doc.id, doc.data()));
-                });
-
-                if (isReset) {
-                    displayedProducts = nuevos;
-                    document.getElementById('grid-productos').innerHTML = '';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    
-                    // Destacados solo en primera carga
-                    const disponibles = nuevos.filter(p => p.disponible);
-                    const destacados = disponibles.slice(0, 6);
-                    renderDestacados(destacados);
-                    
-                    document.getElementById('loading-msg').classList.add('hidden');
-                    document.getElementById('seccion-catalogo').classList.remove('hidden');
-                } else {
-                    displayedProducts = [...displayedProducts, ...nuevos];
-                }
-
-                renderizarLote(nuevos, isReset);
-                actualizarContador();
-
-            } catch (error) {
-                console.error("Error cargando productos:", error);
-                mostrarToast("Error de conexión al cargar productos", "error");
-            } finally {
-                isFetching = false;
-                mostrarSkeletonLoading(false);
-                actualizarBotonVerMas();
+                console.error("Error cargando producto individual:", error);
+                return null;
             }
         }
 
         // ============================================
-        // 4. BÚSQUEDA MEJORADA
+        // FUNCIONES DE INTERFAZ Y CONTROL
         // ============================================
 
-        async function buscar(queryText) {
-            clearTimeout(searchTimeout);
-            const texto = queryText.trim().toLowerCase();
-
-            if (texto.length === 0) {
-                resetAndScrollToTop();
-                return;
-            }
-
-            searchTimeout = setTimeout(async () => {
-                mostrarSkeletonLoading(true);
-                document.getElementById('grid-productos').innerHTML = '';
-                
-                try {
-                    // Para una búsqueda más efectiva, cargamos un conjunto más grande
-                    // y filtramos localmente (esto es un trade-off)
-                    const productosRef = window.firebaseFunctions.collection(window.firebaseDb, 'productos');
-                    const q = window.firebaseFunctions.query(
-                        productosRef,
-                        window.firebaseFunctions.orderBy('nombre'),
-                        window.firebaseFunctions.limit(50)
-                    );
-
-                    const snapshot = await window.firebaseFunctions.getDocs(q);
-                    const resultados = [];
-                    
-                    snapshot.forEach(doc => {
-                        const producto = formatearProducto(doc.id, doc.data());
-                        const textoBusqueda = (
-                            producto.nombre.toLowerCase() + ' ' +
-                            producto.cat.toLowerCase() + ' ' +
-                            producto.desc.toLowerCase()
-                        );
-                        
-                        if (textoBusqueda.includes(texto)) {
-                            resultados.push(producto);
-                        }
-                    });
-                    
-                    displayedProducts = resultados;
-                    renderizarLote(resultados, true);
-                    
-                    document.getElementById('btn-ver-mas-container').classList.add('hidden');
-                    document.getElementById('titulo-grid').innerText = `Búsqueda: "${queryText}"`;
-                    
-                    if (resultados.length === 0) {
-                        mostrarToast("No se encontraron productos", "info");
-                    }
-
-                } catch (error) {
-                    console.error(error);
-                    mostrarToast("Error buscando productos", "error");
-                } finally {
-                    mostrarSkeletonLoading(false);
-                }
-            }, 600);
-        }
-
-        // ============================================
-        // 5. FUNCIONES AUXILIARES
-        // ============================================
-
-        function formatearProducto(id, data) {
-            const sanitize = (text) => text ? text.toString().replace(/[<>"']/g, '') : "";
-            let rawStock = (data.stock || '').toString().toLowerCase().trim();
-            
-            let precio = 0;
-            if (typeof data.precio === 'number') {
-                precio = data.precio;
-            } else if (typeof data.precio === 'string') {
-                precio = parseInt(data.precio.replace(/[^0-9]/g, '')) || 0;
-            }
-
-            let img = data.foto || PLACEHOLDER_SVG;
-            // Validar URL
-            if (img && !img.startsWith('http') && !img.startsWith('data:')) {
-                img = PLACEHOLDER_SVG;
-            }
-
-            return {
-                id: id,
-                nombre: sanitize(data.nombre || "Sin Nombre"),
-                precio: precio,
-                cat: sanitize(data.categoria || "Varios"),
-                desc: sanitize(data.descripcion || ""),
-                img: img,
-                disponible: rawStock === 'si'
-            };
-        }
-
-        function filtrar(cat, btnElement) {
-            currentCategoryFilter = cat;
-            
-            document.querySelectorAll('#nav-categorias button').forEach(b => {
-                b.className = "w-full text-left px-5 py-3 rounded-xl hover:bg-gray-50 font-medium text-gray-600 flex items-center gap-3 transition-all group";
-            });
-            
-            if(btnElement) {
-                btnElement.className = "w-full text-left px-5 py-3 rounded-xl bg-gray-50 font-bold text-beige flex items-center gap-3 transition-all group border-l-4 border-beige";
-            }
-            
-            if(window.innerWidth < 1024) toggleMobileMenu();
-            document.getElementById('titulo-grid').innerText = cat === 'todas' ? 'Catálogo Completo' : cat;
-
-            cargarProductosBatch(true);
-        }
-
-        function resetAndScrollToTop() {
-            document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
-            const btnTodo = document.getElementById('btn-todas');
-            if (btnTodo) filtrar('todas', btnTodo);
-        }
-
-        // ============================================
-        // 6. RENDERIZADO UI
-        // ============================================
-
-        function renderizarLote(lista, isReset) {
-            const container = document.getElementById('grid-productos');
-            
-            if (lista.length === 0 && isReset) {
-                container.innerHTML = `
-                    <div class="col-span-full py-10 text-center text-gray-500">
-                        <i class="fa fa-search text-3xl mb-4 text-gray-300"></i>
-                        <p>No se encontraron productos.</p>
-                    </div>`;
-                return;
-            }
-
-            const html = lista.map(p => cardHTML(p)).join('');
-            
-            if (isReset) {
-                container.innerHTML = html;
-            } else {
-                container.insertAdjacentHTML('beforeend', html);
-            }
-            initLazyLoad();
-        }
-
-        function cardHTML(p) {
-            const disponible = p.disponible;
-            const btnClass = disponible ? 
-                "bg-gray-900 text-white hover:bg-beige" : 
-                "bg-gray-200 text-gray-400 cursor-not-allowed";
-            const btnText = disponible ? "Agregar" : "Agotado";
-            const action = disponible ? `addToCart('${p.id}')` : "";
-            const imageClass = disponible ? "" : "no-stock";
-            
-            return `
-                <div class="bg-white rounded-2xl border border-gray-100 hover:border-beige/50 transition-all duration-300 group hover:shadow-lg relative flex flex-col h-full overflow-hidden shadow-sm fade-in-up">
-                    <div class="relative h-48 md:h-56 bg-white p-2 cursor-pointer" onclick="openProduct('${p.id}')">
-                        <img data-src="${p.img}" 
-                             class="lazy-load w-full h-full object-contain group-hover:scale-105 transition duration-500 ${imageClass}" 
-                             alt="${p.nombre}"
-                             loading="lazy"
-                             onerror="this.onerror=null; this.src='${PLACEHOLDER_SVG}'; this.classList.add('img-placeholder')">
-                        <span class="absolute bottom-0 left-0 bg-gray-100 px-2 py-1 text-[10px] font-bold text-gray-600 uppercase tracking-wider rounded-tr-lg">${p.cat.substring(0,15)}</span>
-                        ${!disponible ? '<span class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-[10px] font-bold rounded">AGOTADO</span>' : ''}
-                    </div>
-                    <div class="p-4 flex flex-col grow">
-                        <h4 class="font-medium text-gray-800 text-sm mb-3 leading-snug line-clamp-2 grow">${p.nombre}</h4>
-                        <div class="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
-                            <span class="font-black text-lg text-gray-900">$${p.precio.toLocaleString()}</span>
-                            <button onclick="${action}" class="text-xs font-bold px-3 py-2 rounded-lg transition uppercase ${btnClass}">${btnText}</button>
-                        </div>
-                    </div>
-                </div>`;
-        }
-
-        function renderDestacados(lista) {
-            const container = document.getElementById('hero-destacados-container');
-            if(!lista || lista.length === 0) {
-                container.innerHTML = '<div class="text-center w-full text-gray-400">Sin destacados</div>';
-                return;
-            }
-            container.innerHTML = lista.map(p => `
-                <div class="slider-card bg-white rounded-2xl border border-gray-200 overflow-hidden relative h-full flex flex-col shadow-sm cursor-pointer" onclick="openProduct('${p.id}')">
-                    <div class="relative h-48 md:h-56 bg-white p-2">
-                        <img data-src="${p.img}" class="lazy-load w-full h-full object-contain" alt="${p.nombre}" loading="lazy" onerror="this.onerror=null; this.src='${PLACEHOLDER_SVG}'">
-                        <div class="absolute top-2 left-2 bg-black text-white px-2 py-1 rounded text-[10px] font-bold uppercase">Destacado</div>
-                    </div>
-                    <div class="p-3 flex flex-col flex-1">
-                        <h3 class="font-bold text-gray-800 text-xs md:text-sm mb-1 line-clamp-2">${p.nombre}</h3>
-                        <span class="text-sm md:text-lg font-black text-gray-900 mt-auto">$${p.precio.toLocaleString()}</span>
-                    </div>
-                </div>
-            `).join('');
-            initLazyLoad();
-        }
-
-        function actualizarContador() {
-            document.getElementById('cantidad-productos').innerText = displayedProducts.length + (hasMoreProducts ? "+" : "");
-        }
-
-        function actualizarBotonVerMas() {
-            const btnContainer = document.getElementById('btn-ver-mas-container');
-            const btn = document.getElementById('btn-ver-mas');
-            
-            if (!btnContainer || !btn) return;
-            
-            if (hasMoreProducts && currentCategoryFilter !== null) {
-                btnContainer.classList.remove('hidden');
-                btn.disabled = false;
-                btn.innerHTML = `<span id="btn-ver-mas-text">Ver más productos</span> <i class="fa fa-arrow-down ml-2"></i>`;
-            } else {
-                btnContainer.classList.add('hidden');
-            }
-        }
-
+        /**
+         * Mostrar/ocultar skeleton loading
+         */
         function mostrarSkeletonLoading(mostrar) {
             const skeleton = document.getElementById('skeleton-loading');
             const loadingMsg = document.getElementById('loading-msg');
@@ -920,44 +712,334 @@
             }
         }
 
-        // ============================================
-        // 7. CARRITO (funciones sin cambios mayores)
-        // ============================================
-
-        function addToCart(id) {
-            let p = displayedProducts.find(x => x.id === id);
-            
-            if (!p) {
-                const enCarrito = cart.find(x => x.id === id);
-                if (enCarrito) p = enCarrito; 
-                else return;
+        /**
+         * Procesar productos y actualizar interfaz
+         */
+        function procesarProductos(productosArray) {
+            if (!productosArray || productosArray.length === 0) {
+                mostrarToast("No hay productos disponibles", "info");
+                document.getElementById('loading-msg').innerHTML = `
+                    <div class="text-center">
+                        <i class="fa fa-box-open text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-900 font-bold">No hay productos disponibles</p>
+                    </div>`;
+                return;
             }
             
+            try {
+                db = productosArray;
+                
+                // Actualizar interfaz
+                generarMenuCategorias();
+                document.getElementById('loading-msg').classList.add('hidden');
+                document.getElementById('seccion-catalogo').classList.remove('hidden');
+                currentFilteredList = db;
+                renderGrid(currentFilteredList);
+                renderDestacados(db);
+                initLazyLoad();
+                
+                console.log("Productos procesados exitosamente:", db.length);
+                
+                // Mostrar toast de éxito
+                setTimeout(() => {
+                    mostrarToast(`${db.length} productos cargados`, "success");
+                }, 500);
+                
+            } catch (error) {
+                console.error("Error procesando productos:", error);
+                mostrarToast("Error formateando productos", "error");
+            }
+        }
+
+        /**
+         * Restaurar estado inicial y hacer scroll al inicio
+         */
+        function resetAndScrollToTop() {
+            // Resetear filtros
+            filtrar('todas', document.getElementById('btn-todas'));
+            
+            // Resetear búsqueda
+            document.querySelectorAll('input[type="text"]').forEach(input => {
+                input.value = '';
+            });
+            
+            // Resetear página
+            currentPage = 1;
+            renderGrid(currentFilteredList);
+            
+            // Scroll suave al inicio
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            
+            mostrarToast("Catálogo restablecido", "info");
+        }
+
+        /**
+         * Buscar productos
+         */
+        let lastSearch = '';
+        function buscar(query) {
+            if (query === lastSearch) return;
+            lastSearch = query;
+            clearTimeout(searchTimeout); 
+            
+            if (query.length > 2) {
+                document.getElementById('grid-productos').innerHTML = 
+                    '<div class="col-span-full py-10 text-center">' +
+                    '<i class="fa fa-spinner fa-spin text-beige text-2xl mb-2"></i>' +
+                    '<p class="text-gray-600">Buscando...</p></div>';
+            }
+            
+            searchTimeout = setTimeout(() => {
+                const texto = query.toLowerCase();
+                currentFilteredList = db.filter(p => 
+                    p.nombre.toLowerCase().includes(texto) || 
+                    p.cat.toLowerCase().includes(texto) ||
+                    (p.desc && p.desc.toLowerCase().includes(texto))
+                );
+                currentPage = 1; 
+                renderGrid(currentFilteredList);
+                
+                if(query.length > 0) {
+                    const section = document.getElementById('seccion-catalogo');
+                    window.scrollTo({
+                        top: section.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 300); 
+        }
+
+        /**
+         * Filtrar por categoría
+         */
+        function filtrar(cat, btnElement) {
+            if(window.innerWidth < 1024 && !document.getElementById('left-sidebar').classList.contains('-translate-x-full')) {
+                toggleMobileMenu();
+            }
+            
+            // Actualizar botones activos
+            document.querySelectorAll('#nav-categorias button').forEach(b => {
+                b.className = "w-full text-left px-5 py-3 rounded-xl hover:bg-gray-50 font-medium text-gray-600 flex items-center gap-3 transition-all group";
+            });
+            
+            if(btnElement) {
+                btnElement.className = "w-full text-left px-5 py-3 rounded-xl bg-gray-50 font-bold text-beige flex items-center gap-3 transition-all group border-l-4 border-beige";
+            }
+            
+            // Aplicar filtro
+            currentFilteredList = cat === 'todas' ? db : db.filter(p => p.cat === cat);
+            document.getElementById('titulo-grid').innerText = cat === 'todas' ? 'Catálogo Completo' : cat;
+            currentPage = 1;
+            renderGrid(currentFilteredList);
+            
+            // Scroll a la sección
+            window.scrollTo({
+                top: document.getElementById('seccion-catalogo').getBoundingClientRect().top + window.pageYOffset - 110, 
+                behavior: 'smooth'
+            });
+        }
+
+        /**
+         * Generar menú de categorías
+         */
+        function generarMenuCategorias() {
+            const nav = document.getElementById('nav-categorias');
+            nav.innerHTML = ''; 
+            
+            // Botón "Todo"
+            const btnTodas = document.createElement('button');
+            btnTodas.className = "w-full text-left px-5 py-3 rounded-xl bg-gray-50 font-bold text-beige flex items-center gap-3 transition-all group border-l-4 border-beige";
+            btnTodas.id = "btn-todas";
+            btnTodas.onclick = () => filtrar('todas', btnTodas);
+            btnTodas.innerHTML = `<i class="fa fa-border-all text-beige group-hover:scale-110 transition w-5 text-center"></i> Todo`;
+            nav.appendChild(btnTodas);
+            
+            // Obtener categorías únicas
+            const categoriasUnicas = [...new Set(db.map(p => p.cat))].filter(c => c && c.trim() !== "").sort();
+            
+            // Crear botones para cada categoría
+            categoriasUnicas.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left px-5 py-3 rounded-xl hover:bg-gray-50 font-medium text-gray-600 flex items-center gap-3 transition-all group";
+                btn.onclick = () => filtrar(cat, btn);
+                btn.innerHTML = `<i class="fa fa-chevron-right text-gray-300 text-xs group-hover:text-beige transition"></i> ${cat.charAt(0).toUpperCase() + cat.slice(1)}`;
+                nav.appendChild(btn);
+            });
+        }
+
+        /**
+         * Renderizar grid de productos
+         */
+        function renderGrid(lista) { 
+            const contenedor = document.getElementById('grid-productos');
+            const cantidad = document.getElementById('cantidad-productos');
+            cantidad.innerText = lista.length;
+            
+            if(lista.length === 0) { 
+                contenedor.innerHTML = `
+                    <div class="col-span-full py-10 text-center text-gray-500 bg-white/80 rounded-xl p-6">
+                        <i class="fa fa-search text-3xl text-gray-300 mb-4"></i>
+                        <p class="font-bold">No se encontraron productos.</p>
+                        <p class="text-sm mt-2">Prueba con otros términos o categorías</p>
+                    </div>`; 
+                document.getElementById('pagination-controls').classList.add('hidden');
+                return; 
+            }
+            
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            contenedor.innerHTML = lista.slice(start, end).map(p => cardHTML(p)).join(''); 
+            renderPaginationControls();
+            initLazyLoad();
+        }
+
+        /**
+         * Renderizar productos destacados
+         */
+        function renderDestacados(lista) {
+            // Tomar productos disponibles aleatorios para destacados
+            const disponibles = lista.filter(p => p.disponible);
+            const destacados = disponibles
+                .sort(() => Math.random() - 0.5) // Mezclar aleatoriamente
+                .slice(0, 6);
+            
+            const container = document.getElementById('hero-destacados-container');
+            
+            if (destacados.length === 0) {
+                container.innerHTML = '<div class="text-center w-full text-gray-400">No hay productos destacados</div>';
+                return;
+            }
+            
+            container.innerHTML = destacados.map(p => `
+                <div class="slider-card bg-white rounded-2xl border border-gray-200 overflow-hidden relative h-full flex flex-col shadow-sm cursor-pointer" onclick="openProduct('${p.id}')">
+                    <div class="relative h-48 md:h-56 bg-white p-2">
+                        <img data-src="${p.img}" 
+                             class="lazy-load w-full h-full object-contain" 
+                             alt="${p.nombre}"
+                             loading="lazy"
+                             decoding="async"
+                             onerror="this.onerror=null; this.src='${PLACEHOLDER_SVG}'; this.classList.add('img-placeholder')">
+                        <div class="absolute top-2 left-2 bg-black text-white px-2 py-1 rounded text-[10px] font-bold uppercase">Destacado</div>
+                    </div>
+                    <div class="p-3 flex flex-col flex-1">
+                        <h3 class="font-bold text-gray-800 text-xs md:text-sm mb-1 line-clamp-2">${p.nombre}</h3>
+                        <span class="text-sm md:text-lg font-black text-gray-900 mt-auto">$${p.precio.toLocaleString()}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            initLazyLoad();
+        }
+
+        /**
+         * HTML para tarjeta de producto
+         */
+        function cardHTML(p) {
+            const btnClass = p.disponible ? "bg-gray-900 text-white hover:bg-beige" : "bg-gray-200 text-gray-400 cursor-not-allowed";
+            const btnText = p.disponible ? "Agregar" : "Agotado";
+            const action = p.disponible ? `addToCart('${p.id}')` : "";
+            const imageClass = p.disponible ? "" : "no-stock";
+            
+            return `
+                <div class="bg-white rounded-2xl border border-gray-100 hover:border-beige/50 transition-all duration-300 group hover:shadow-lg relative flex flex-col h-full overflow-hidden shadow-sm">
+                    <div class="relative h-48 md:h-56 bg-white p-2 cursor-pointer" onclick="openProduct('${p.id}')">
+                        <img data-src="${p.img}" 
+                             class="lazy-load w-full h-full object-contain group-hover:scale-105 transition duration-500 ${imageClass}" 
+                             alt="${p.nombre}"
+                             loading="lazy"
+                             decoding="async"
+                             onerror="this.onerror=null; this.src='${PLACEHOLDER_SVG}'; this.classList.add('img-placeholder')">
+                        <span class="absolute bottom-0 left-0 bg-gray-100 px-2 py-1 text-[10px] font-bold text-gray-600 uppercase tracking-wider rounded-tr-lg">${p.cat.substring(0,15)}</span>
+                        ${!p.disponible ? '<span class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-[10px] font-bold rounded">AGOTADO</span>' : ''}
+                    </div>
+                    <div class="p-4 flex flex-col grow">
+                        <h4 class="font-medium text-gray-800 text-sm mb-3 leading-snug line-clamp-2 grow">${p.nombre}</h4>
+                        <div class="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
+                            <span class="font-black text-lg text-gray-900">$${p.precio.toLocaleString()}</span>
+                            <button onclick="${action}" class="text-xs font-bold px-3 py-2 rounded-lg transition uppercase ${btnClass}">${btnText}</button>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        // ============================================
+        // FUNCIONALIDAD DEL CARRITO
+        // ============================================
+
+        /**
+         * Agregar producto al carrito
+         */
+        function addToCart(id) {
+            const p = db.find(x => x.id === id);
+            if (!p) {
+                // Intentar cargar el producto individualmente
+                cargarProductoIndividual(id).then(producto => {
+                    if (producto && producto.disponible) {
+                        agregarProductoAlCarrito(producto);
+                    } else {
+                        mostrarToast("Producto no encontrado o agotado", "error");
+                    }
+                });
+                return;
+            }
+            
+            if (!p.disponible) {
+                mostrarToast("Producto agotado", "error");
+                return;
+            }
+            
+            agregarProductoAlCarrito(p);
+        }
+
+        /**
+         * Función auxiliar para agregar producto al carrito
+         */
+        function agregarProductoAlCarrito(p) {
             let item = cart.find(i => i.id === p.id);
-            if (item) item.qty++;
-            else cart.push({ ...p, qty: 1 });
+            if (item) {
+                item.qty++;
+            } else {
+                cart.push({ ...p, qty: 1 });
+            }
             
             updateCartUI();
             mostrarToast("¡Agregado al carrito!");
             
+            // Efecto visual en el badge
             const badge = document.getElementById('cart-badge');
             badge.classList.add('scale-125');
             setTimeout(() => badge.classList.remove('scale-125'), 200);
             document.getElementById('cart-icon').classList.replace('text-gray-400', 'text-beige');
 
-            if (window.innerWidth >= 1024 && document.getElementById('cart-sidebar').classList.contains('translate-x-full')) {
-                 toggleCart();
+            // Auto-abrir carrito en desktop (solo primera vez)
+            if (window.innerWidth >= 1024 && !hasOpenedCartAutomatically) {
+                if (document.getElementById('cart-sidebar').classList.contains('translate-x-full')) { 
+                    toggleCart(); 
+                    hasOpenedCartAutomatically = true; 
+                }
             }
         }
 
+        /**
+         * Cambiar cantidad de producto en el carrito
+         */
         function cambiarCantidad(id, n) {
             let item = cart.find(x => x.id === id);
             if(!item) return;
             item.qty += n;
-            if(item.qty <= 0) removeFromCart(id);
-            else updateCartUI();
+            if(item.qty <= 0) {
+                removeFromCart(id);
+            } else {
+                updateCartUI();
+            }
         }
 
+        /**
+         * Eliminar producto del carrito
+         */
         function removeFromCart(id) {
             cart = cart.filter(i => i.id !== id);
             updateCartUI();
@@ -967,10 +1049,17 @@
             }
         }
 
+        /**
+         * Actualizar interfaz del carrito
+         */
         function updateCartUI() {
-            localStorage.setItem('papajose_cart', JSON.stringify(cart));
+            try {
+                localStorage.setItem('papajose_cart', JSON.stringify(cart));
+            } catch (e) {
+                console.warn("No se pudo guardar en localStorage:", e);
+            }
+
             const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
-            
             const badge = document.getElementById('cart-badge');
             badge.innerText = totalItems;
             badge.classList.toggle('scale-0', totalItems === 0);
@@ -991,7 +1080,10 @@
             } else {
                 list.innerHTML = cart.map((p) => `
                     <div class="flex gap-4 items-center bg-gray-50 p-3 rounded-xl border border-gray-100 hover:border-beige/20 transition-all">
-                        <img src="${p.img}" class="w-14 h-14 rounded object-contain bg-white border" alt="${p.nombre}" onerror="this.onerror=null; this.src='${PLACEHOLDER_SVG}'">
+                        <img src="${p.img}" 
+                             class="w-14 h-14 rounded object-contain bg-white border" 
+                             alt="${p.nombre}"
+                             onerror="this.onerror=null; this.src='${PLACEHOLDER_SVG}'; this.classList.add('img-placeholder')">
                         <div class="flex-1 min-w-0">
                             <h4 class="font-bold text-xs text-gray-800 truncate">${p.nombre}</h4>
                             <p class="text-xs font-black text-gray-900">$${(p.precio * p.qty).toLocaleString()}</p>
@@ -1004,21 +1096,31 @@
                     </div>
                 `).join('');
                 
-                if(window.innerWidth < 1024 && document.getElementById('cart-sidebar').classList.contains('translate-x-full')) {
-                    stickyBar.classList.remove('hidden'); 
-                    stickyBar.classList.remove('translate-y-full');
+                if(window.innerWidth < 1024) {
+                    if(document.getElementById('cart-sidebar').classList.contains('translate-x-full')) {
+                        stickyBar.classList.remove('hidden'); 
+                        stickyBar.classList.remove('translate-y-full');
+                    }
                 }
-                if(window.innerWidth >= 1024) floatingBtn.classList.remove('hidden');
+                
+                if(window.innerWidth >= 1024) {
+                    floatingBtn.classList.remove('hidden');
+                }
             }
             calcularTotal();
         }
 
+        /**
+         * Calcular total del carrito
+         */
         function calcularTotal() {
             let subtotal = cart.reduce((sum, item) => sum + (item.precio * item.qty), 0);
             
             const radios = document.getElementsByName('tipo_envio');
             let tipoEnvio = "rm";
-            for(const r of radios) { if(r.checked) tipoEnvio = r.value; }
+            for(const r of radios) { 
+                if(r.checked) tipoEnvio = r.value; 
+            }
             
             costoEnvio = (cart.length > 0 && tipoEnvio === 'rm') ? 3500 : 0; 
             let totalSidebar = subtotal + costoEnvio;
@@ -1029,9 +1131,16 @@
             document.getElementById('header-total').innerText = subtotalFmt;
             document.getElementById('cart-total').innerText = `$${totalSidebar.toLocaleString()}`;
             
-            if(cart.length > 0) document.getElementById('header-total').classList.add('opacity-100');
+            if(cart.length > 0) {
+                document.getElementById('header-total').classList.add('opacity-100');
+            } else {
+                document.getElementById('header-total').classList.remove('opacity-100');
+            }
         }
 
+        /**
+         * Enviar pedido por WhatsApp y limpiar carrito
+         */
         function enviarPedidoYLimpiar() {
             if(cart.length === 0) {
                 mostrarToast("Tu carrito está vacío", "info");
@@ -1041,20 +1150,26 @@
             const radiosEnvio = document.getElementsByName('tipo_envio');
             let tipoEnvioTexto = "Región Metropolitana ($3.500)";
             for(const r of radiosEnvio) { 
-                if(r.checked && r.value === 'regiones') tipoEnvioTexto = "Regiones (Por Pagar - Starken)";
+                if(r.checked && r.value === 'regiones') {
+                    tipoEnvioTexto = "Regiones (Por Pagar - Starken)";
+                }
             }
             
             const radiosDoc = document.getElementsByName('tipo_doc');
             let tipoDocTexto = "Boleta";
-            for(const r of radiosDoc) { if(r.checked) tipoDocTexto = r.value; }
+            for(const r of radiosDoc) { 
+                if(r.checked) tipoDocTexto = r.value; 
+            }
             
             const totalText = document.getElementById('cart-total').innerText;
             const itemsList = cart.map(p => `• (${p.qty}) ${p.nombre} - $${(p.precio * p.qty).toLocaleString()}`).join('\n');
             
             const msg = `*HOLA PAPAJOSE SPA* 👋\n\nQuiero confirmar el siguiente pedido:\n\n${itemsList}\n\n*ENVÍO:* ${tipoEnvioTexto}\n*DOCUMENTO:* ${tipoDocTexto}\n*TOTAL A PAGAR:* ${totalText}\n\nQuedo atento a los datos de transferencia a Cuenta Empresa.`;
             
-            window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
+            // Abrir WhatsApp
+            const whatsappWindow = window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
             
+            // Limpiar carrito después de enviar
             setTimeout(() => {
                 cart = [];
                 localStorage.removeItem('papajose_cart');
@@ -1062,16 +1177,36 @@
                 forceCloseCart();
                 mostrarToast("Pedido enviado. Carrito limpiado.", "success");
             }, 500);
+            
+            // Fallback si el popup está bloqueado
+            if (!whatsappWindow || whatsappWindow.closed || typeof whatsappWindow.closed == 'undefined') {
+                navigator.clipboard.writeText(msg).then(() => {
+                    mostrarToast("Mensaje copiado al portapapeles. Pégalo en WhatsApp.", "info");
+                });
+            }
         }
 
         // ============================================
-        // 8. MODALES Y UTILIDADES
+        // NAVEGACIÓN Y MODALES
         // ============================================
 
-        function openProduct(id) {
-            let p = displayedProducts.find(x => x.id === id);
-            if (!p) return;
-
+        /**
+         * Abrir modal de producto
+         */
+        async function openProduct(id) {
+            // Buscar en cache local primero
+            let p = db.find(x => x.id === id);
+            
+            // Si no está en cache, cargar desde Firebase
+            if (!p) {
+                mostrarToast("Cargando producto...", "info");
+                p = await cargarProductoIndividual(id);
+                if (!p) {
+                    mostrarToast("Producto no encontrado", "error");
+                    return;
+                }
+            }
+            
             history.pushState({modal: 'product'}, null, "");
             const modal = document.getElementById('product-modal');
             
@@ -1083,7 +1218,10 @@
                 <div class="p-6 md:p-8">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div class="flex items-center justify-center bg-gray-50 rounded-2xl p-4 md:p-8">
-                            <img src="${p.img}" class="max-h-72 w-full object-contain ${p.disponible ? '' : 'no-stock'}" alt="${p.nombre}" onerror="this.onerror=null; this.src='${PLACEHOLDER_SVG}'">
+                            <img src="${p.img}" 
+                                 class="max-h-72 w-full object-contain ${p.disponible ? '' : 'no-stock'}" 
+                                 alt="${p.nombre}"
+                                 onerror="this.onerror=null; this.src='${PLACEHOLDER_SVG}'; this.classList.add('img-placeholder')">
                             ${!p.disponible ? '<div class="absolute inset-0 flex items-center justify-center bg-black/10"><span class="bg-red-500 text-white px-4 py-2 font-bold rounded-lg">SIN STOCK</span></div>' : ''}
                         </div>
                         <div class="flex flex-col justify-center">
@@ -1096,7 +1234,8 @@
                                         <span class="text-sm text-gray-500 font-bold uppercase">Precio</span>
                                         <div class="text-3xl font-black text-gray-900">$${p.precio.toLocaleString()}</div>
                                     </div>
-                                    <button onclick="${action}" ${btnState} class="bg-black text-white px-6 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-beige transition shadow-lg text-sm">
+                                    <button onclick="${action}" ${btnState} 
+                                            class="bg-black text-white px-6 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-beige transition shadow-lg text-sm">
                                         ${btnTxt}
                                     </button>
                                 </div>
@@ -1109,6 +1248,9 @@
             document.body.classList.add('locked');
         }
 
+        /**
+         * Cerrar modal de producto
+         */
         function closeProductModal() { 
             const modal = document.getElementById('product-modal');
             modal.classList.add('hidden');
@@ -1116,15 +1258,25 @@
             history.back();
         }
 
+        /**
+         * Mostrar notificación toast
+         */
         function mostrarToast(msg, type = 'success') {
             const t = document.getElementById('toast-modal');
             const c = document.getElementById('toast-content');
+            
             let color = type === 'error' ? 'bg-red-500' : (type === 'info' ? 'bg-blue-500' : 'bg-green-500');
             let icon = type === 'error' ? 'times' : (type === 'info' ? 'info' : 'check');
             
-            c.innerHTML = `<div class="w-6 h-6 ${color} rounded-full flex items-center justify-center text-xs text-white"><i class="fa fa-${icon}"></i></div><span class="font-bold text-sm">${msg}</span>`;
+            c.innerHTML = `
+                <div class="w-6 h-6 ${color} rounded-full flex items-center justify-center text-xs text-white">
+                    <i class="fa fa-${icon}"></i>
+                </div>
+                <span class="font-bold text-sm">${msg}</span>`;
+            
             t.classList.remove('hidden'); 
             setTimeout(() => t.classList.add('toast-visible'), 10);
+            
             setTimeout(() => {
                 t.classList.remove('toast-visible');
                 setTimeout(() => t.classList.add('hidden'), 300);
@@ -1132,12 +1284,43 @@
         }
 
         // ============================================
-        // 9. INTERACCIÓN Y EVENTOS
+        // CONTROL DE PAGINACIÓN
+        // ============================================
+
+        function changePage(direction) {
+            const totalPages = Math.ceil(currentFilteredList.length / itemsPerPage);
+            const newPage = currentPage + direction;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderGrid(currentFilteredList);
+                window.scrollTo({
+                    top: document.getElementById('seccion-catalogo').getBoundingClientRect().top + window.pageYOffset - 120, 
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        function renderPaginationControls() {
+            const controls = document.getElementById('pagination-controls');
+            const totalPages = Math.ceil(currentFilteredList.length / itemsPerPage);
+            if (totalPages <= 1) { 
+                controls.classList.add('hidden'); 
+                return; 
+            }
+            controls.classList.remove('hidden');
+            document.getElementById('page-indicator').innerText = `Pág ${currentPage} de ${totalPages}`;
+            document.getElementById('btn-prev').disabled = currentPage === 1;
+            document.getElementById('btn-next').disabled = currentPage === totalPages;
+        }
+
+        // ============================================
+        // CONTROL DE INTERFAZ (CARRITO, MENÚ)
         // ============================================
 
         function toggleCart() {
             const sidebar = document.getElementById('cart-sidebar');
             const overlay = document.getElementById('cart-overlay');
+            const stickyBar = document.getElementById('mobile-sticky-bar');
             const isOpen = sidebar.classList.contains('translate-x-0');
 
             if (cart.length === 0 && !isOpen) {
@@ -1151,6 +1334,7 @@
                 sidebar.classList.add('translate-x-0');
                 overlay.classList.add('open');
                 document.body.classList.add('locked');
+                if(window.innerWidth < 1024) stickyBar.classList.add('hidden');
             } else { 
                 history.back();
             }
@@ -1168,18 +1352,37 @@
             }
         }
 
-        function forceCloseCart() {
-            const sidebar = document.getElementById('cart-sidebar');
-            sidebar.classList.remove('translate-x-0');
-            sidebar.classList.add('translate-x-full');
-            document.getElementById('cart-overlay').classList.remove('open');
-            document.body.classList.remove('locked');
+        function handleBackAction() { 
+            history.back(); 
         }
 
-        function handleBackAction() { history.back(); }
+        function forceCloseCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.getElementById('cart-overlay');
+            const stickyBar = document.getElementById('mobile-sticky-bar');
+            
+            sidebar.classList.remove('translate-x-0');
+            sidebar.classList.add('translate-x-full');
+            overlay.classList.remove('open');
+            document.body.classList.remove('locked');
+            
+            if(cart.length === 0) {
+                stickyBar.classList.add('hidden');
+            } else if(window.innerWidth < 1024) {
+                stickyBar.classList.remove('translate-y-full');
+            }
+        }
 
+        // ============================================
+        // OPTIMIZACIONES Y UTILIDADES
+        // ============================================
+
+        /**
+         * Lazy loading de imágenes
+         */
         function initLazyLoad() {
             const lazyImages = [].slice.call(document.querySelectorAll('img.lazy-load'));
+            
             if ('IntersectionObserver' in window) {
                 const observer = new IntersectionObserver((entries, obs) => {
                     entries.forEach(entry => {
@@ -1190,60 +1393,129 @@
                             obs.unobserve(img);
                         }
                     });
+                }, {
+                    rootMargin: '50px 0px',
+                    threshold: 0.1
                 });
+                
                 lazyImages.forEach(img => observer.observe(img));
             } else {
-                lazyImages.forEach(img => { img.src = img.dataset.src; img.classList.remove('lazy-load'); });
+                lazyImages.forEach(img => {
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy-load');
+                });
             }
         }
 
+        /**
+         * Gestos táctiles para móviles
+         */
         function initSwipeGestures() {
             let touchStartX = 0;
-            document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, {passive: true});
-            document.addEventListener('touchend', e => {
-                const diffX = touchStartX - e.changedTouches[0].screenX;
-                if (Math.abs(diffX) > 50) {
-                    if (diffX > 0 && document.getElementById('cart-sidebar').classList.contains('translate-x-0')) forceCloseCart();
-                    else if (diffX < 0 && !document.getElementById('left-sidebar').classList.contains('-translate-x-full')) handleBackAction();
+            let touchStartY = 0;
+            
+            document.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+            }, {passive: true});
+            
+            document.addEventListener('touchend', function(e) {
+                const touchEndX = e.changedTouches[0].screenX;
+                const touchEndY = e.changedTouches[0].screenY;
+                const diffX = touchStartX - touchEndX;
+                const diffY = Math.abs(touchStartY - touchEndY);
+                
+                if (diffY < 30 && Math.abs(diffX) > 50) {
+                    if (diffX > 0 && document.getElementById('cart-sidebar').classList.contains('translate-x-0')) {
+                        forceCloseCart();
+                    }
+                    else if (diffX < 0 && !document.getElementById('left-sidebar').classList.contains('-translate-x-full')) {
+                        handleBackAction();
+                    }
                 }
             }, {passive: true});
         }
 
         // ============================================
-        // 10. EVENT LISTENERS GLOBALES
+        // EVENT LISTENERS Y INICIALIZACIÓN
         // ============================================
 
+        // Historial para navegación
         window.addEventListener('popstate', function(event) {
             const modal = document.getElementById('product-modal');
+            const cartSidebar = document.getElementById('cart-sidebar');
+            const leftSidebar = document.getElementById('left-sidebar');
+            const stickyBar = document.getElementById('mobile-sticky-bar');
+
             if (!modal.classList.contains('hidden')) {
                 modal.classList.add('hidden');
                 document.body.classList.remove('locked');
             }
-            if (document.getElementById('cart-sidebar').classList.contains('translate-x-0')) forceCloseCart();
-            if (!document.getElementById('left-sidebar').classList.contains('-translate-x-full')) {
-                document.getElementById('left-sidebar').classList.add('-translate-x-full');
+
+            if (cartSidebar.classList.contains('translate-x-0')) {
+                forceCloseCart(); 
+            }
+
+            if (!leftSidebar.classList.contains('-translate-x-full')) {
+                leftSidebar.classList.add('-translate-x-full');
                 document.getElementById('menu-overlay').classList.remove('open');
                 document.body.classList.remove('locked');
+                if(cart.length > 0 && window.innerWidth < 1024) stickyBar.classList.remove('translate-y-full');
             }
         });
 
+        // Esperar a que la página esté lista
+        window.addEventListener('DOMContentLoaded', () => {
+            // Inicializar carrito
+            updateCartUI();
+            initSwipeGestures();
+            
+            // Verificar si Firebase ya cargó los productos
+            // Si no, intentar cargarlos después de un breve delay
+            setTimeout(() => {
+                if (db.length === 0 && window.cargarProductosDesdeFirebase) {
+                    console.log("Iniciando carga de productos...");
+                    window.cargarProductosDesdeFirebase();
+                }
+            }, 500);
+        });
+
+        // Tecla Escape para cerrar modales
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (!document.getElementById('product-modal').classList.contains('hidden')) closeProductModal();
-                else if (document.getElementById('cart-sidebar').classList.contains('translate-x-0')) forceCloseCart();
+                if (!document.getElementById('product-modal').classList.contains('hidden')) {
+                    closeProductModal();
+                } else if (document.getElementById('cart-sidebar').classList.contains('translate-x-0')) {
+                    forceCloseCart();
+                } else if (!document.getElementById('left-sidebar').classList.contains('-translate-x-full')) {
+                    handleBackAction();
+                }
             }
         });
 
-        // Inicializar gestos táctiles
-        initSwipeGestures();
-
-        // Si Firebase no se inicializó automáticamente, intentar cargar después de 2 segundos
-        setTimeout(() => {
-            if (!window.firebaseReady && window.iniciarApp) {
-                console.warn("Firebase no se inicializó automáticamente, intentando manualmente...");
-                window.iniciarApp();
+        // Error handling para imágenes
+        document.addEventListener('error', function(e) {
+            if (e.target.tagName === 'IMG') {
+                e.target.src = PLACEHOLDER_SVG;
+                e.target.classList.add('img-placeholder');
+                e.target.onerror = null;
             }
-        }, 2000);
+        }, true);
+
+        // Prevenir pérdida de datos al recargar
+        window.addEventListener('beforeunload', function(e) {
+            if (cart.length > 0) {
+                localStorage.setItem('papajose_cart', JSON.stringify(cart));
+            }
+        });
+
+        // Función para forzar recarga (para debug)
+        window.recargarProductos = function() {
+            firebaseCache = null;
+            if (window.cargarProductosDesdeFirebase) {
+                window.cargarProductosDesdeFirebase();
+            }
+        };
 
     </script>
 </body>
