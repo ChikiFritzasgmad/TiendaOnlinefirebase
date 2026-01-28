@@ -21,19 +21,10 @@
         import { 
             getFirestore, 
             collection, 
-            getDocs, 
-            query, 
-            orderBy,
-            where,
-            limit,
-            doc,
-            getDoc
+            getDocs,
+            query,
+            orderBy
         } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-        import { 
-            getStorage, 
-            ref, 
-            getDownloadURL 
-        } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-storage.js";
 
         // Tu configuración de Firebase
         const firebaseConfig = {
@@ -50,26 +41,25 @@
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
         // Hacer disponibles globalmente para el resto del código
         window.firebaseApp = app;
         window.firebaseDb = db;
-        window.firebaseStorage = storage;
         window.firebaseFunctions = {
             getDocs,
             query,
             orderBy,
-            where,
-            limit,
-            collection,
-            getDownloadURL,
-            ref,
-            doc,
-            getDoc
+            collection
         };
 
         console.log("Firebase inicializado correctamente");
+        
+        // Cargar productos inmediatamente después de inicializar
+        setTimeout(() => {
+            if (window.cargarProductosDesdeFirebase) {
+                window.cargarProductosDesdeFirebase();
+            }
+        }, 100);
     </script>
 
     <link rel="icon" type="image/webp" href="imagenes/logo.webp">
@@ -526,14 +516,16 @@
         const CACHE_DURATION = 15 * 60 * 1000; // 15 minutos
 
         // ============================================
-        // FUNCIONES DE FIREBASE
+        // FUNCIONES DE FIREBASE CORREGIDAS
         // ============================================
 
         /**
-         * Carga productos desde Firebase Firestore
+         * Carga productos desde Firebase Firestore - VERSIÓN CORREGIDA
          */
-        async function cargarProductosDesdeFirebase() {
+        window.cargarProductosDesdeFirebase = async function() {
             try {
+                console.log("Iniciando carga de productos desde Firebase...");
+                
                 // Mostrar skeleton loading
                 mostrarSkeletonLoading(true);
                 
@@ -548,15 +540,20 @@
                     return;
                 }
                 
-                console.log("Cargando datos desde Firebase...");
+                console.log("Cargando datos frescos desde Firebase...");
+                
+                // Verificar que Firebase esté inicializado
+                if (!window.firebaseDb || !window.firebaseFunctions) {
+                    throw new Error("Firebase no está inicializado");
+                }
                 
                 // Referencia a la colección de productos
                 const productosRef = window.firebaseFunctions.collection(window.firebaseDb, 'productos');
                 
-                // Crear query para obtener productos activos, ordenados por nombre
+                // Crear query simple SIN filtro 'activo' (porque no existe en tu estructura)
+                // Solo ordenar por nombre
                 const q = window.firebaseFunctions.query(
                     productosRef,
-                    window.firebaseFunctions.where('activo', '==', true),
                     window.firebaseFunctions.orderBy('nombre')
                 );
                 
@@ -572,50 +569,38 @@
                 
                 // Procesar cada documento
                 const productos = [];
+                let contador = 0;
                 
-                for (const doc of querySnapshot.docs) {
+                querySnapshot.forEach((doc) => {
                     try {
                         const data = doc.data();
+                        contador++;
                         
                         // Sanitizar y validar datos
                         const sanitize = (text) => text ? text.toString().replace(/[<>"']/g, '') : "";
                         
-                        let imagenUrl = data.imagen || data.foto || '';
+                        // Obtener URL de imagen
+                        let imagenUrl = data.foto || '';
                         let imgFinal = PLACEHOLDER_SVG;
                         
                         // Procesar URL de imagen
                         if (imagenUrl && imagenUrl.trim() !== '') {
                             imagenUrl = imagenUrl.trim();
-                            
-                            // Si es una URL de Firebase Storage, obtener URL de descarga
-                            if (imagenUrl.includes('firebasestorage.googleapis.com') || 
-                                imagenUrl.startsWith('gs://')) {
-                                try {
-                                    const storageRef = window.firebaseFunctions.ref(window.firebaseStorage, imagenUrl);
-                                    imgFinal = await window.firebaseFunctions.getDownloadURL(storageRef);
-                                } catch (storageError) {
-                                    console.warn("Error obteniendo URL de Firebase Storage:", storageError);
-                                    imgFinal = imagenUrl; // Usar URL directa como fallback
-                                }
-                            } else if (imagenUrl.startsWith('http://') || imagenUrl.startsWith('https://') || 
-                                      imagenUrl.startsWith('//') || imagenUrl.startsWith('/') ||
-                                      imagenUrl.includes('.webp') || imagenUrl.includes('.jpg') || 
-                                      imagenUrl.includes('.jpeg') || imagenUrl.includes('.png')) {
+                            // Validar si es una URL válida
+                            if (imagenUrl.startsWith('http://') || imagenUrl.startsWith('https://') || 
+                                imagenUrl.startsWith('//') || imagenUrl.startsWith('/') ||
+                                imagenUrl.includes('.webp') || imagenUrl.includes('.jpg') || 
+                                imagenUrl.includes('.jpeg') || imagenUrl.includes('.png')) {
                                 imgFinal = imagenUrl;
                             }
                         }
                         
-                        // Determinar disponibilidad
+                        // Determinar disponibilidad basado en stock
+                        // Según tu estructura, stock es string "si" o "no"
                         let rawStock = (data.stock || '').toString().toLowerCase().trim();
-                        let disponible = true;
+                        let disponible = rawStock === 'si';
                         
-                        if (data.hasOwnProperty('disponible')) {
-                            disponible = Boolean(data.disponible);
-                        } else if (data.hasOwnProperty('stock')) {
-                            disponible = !['0', 'no', 'false', 'agotado', 'sin stock'].includes(rawStock);
-                        }
-                        
-                        // Convertir precio a número
+                        // Convertir precio a número (ya debería ser número)
                         let precio = 0;
                         if (typeof data.precio === 'number') {
                             precio = data.precio;
@@ -623,19 +608,18 @@
                             precio = parseInt(data.precio.toString().replace(/[^0-9]/g, '')) || 0;
                         }
                         
-                        // Crear objeto de producto
+                        // Crear objeto de producto con tu estructura exacta
                         const producto = {
                             id: doc.id, // Usar ID del documento de Firestore
-                            nombre: sanitize(data.nombre || data.productos || "Sin Nombre"),
+                            nombre: sanitize(data.nombre || "Sin Nombre"),
                             precio: precio,
-                            cat: sanitize(data.categoria || data.cat || "Varios"),
-                            desc: sanitize(data.descripcion || data.desc || ""),
+                            cat: sanitize(data.categoria || "Varios"),
+                            desc: sanitize(data.descripcion || ""),
                             img: imgFinal,
                             disponible: disponible,
-                            sku: data.sku || '',
-                            marca: data.marca || '',
-                            peso: data.peso || 0,
-                            dimensiones: data.dimensiones || ''
+                            // Campos adicionales según tu estructura
+                            fecha_carga: data.fecha_carga || null,
+                            id_csv: data.id_csv || ''
                         };
                         
                         productos.push(producto);
@@ -644,9 +628,14 @@
                         console.error("Error procesando documento:", doc.id, error);
                         // Continuar con el siguiente producto
                     }
-                }
+                });
                 
-                console.log(`Productos cargados desde Firebase: ${productos.length}`);
+                console.log(`Productos cargados desde Firebase: ${productos.length} de ${contador} procesados`);
+                
+                // Si no hay productos válidos
+                if (productos.length === 0) {
+                    throw new Error("No se pudieron procesar los productos");
+                }
                 
                 // Actualizar cache
                 firebaseCache = productos;
@@ -659,46 +648,42 @@
                 console.error("Error cargando productos desde Firebase:", error);
                 
                 // Intentar usar cache si existe
-                if (firebaseCache) {
+                if (firebaseCache && firebaseCache.length > 0) {
                     console.log("Usando cache debido a error");
                     procesarProductos(firebaseCache);
                 } else {
-                    mostrarToast("Error cargando productos. Intenta recargar la página.", "error");
+                    // Mostrar mensaje de error en la interfaz
                     document.getElementById('loading-msg').innerHTML = `
                         <div class="text-center">
                             <i class="fa fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
                             <p class="text-gray-900 font-bold mb-2">Error cargando productos</p>
+                            <p class="text-gray-600 text-sm mb-4">Detalle: ${error.message || "Error desconocido"}</p>
                             <button onclick="cargarProductosDesdeFirebase()" class="mt-4 bg-beige text-white px-4 py-2 rounded-lg font-bold">
                                 Reintentar
                             </button>
                         </div>`;
+                    mostrarToast("Error cargando productos. Intenta recargar la página.", "error");
                 }
             } finally {
                 mostrarSkeletonLoading(false);
             }
-        }
+        };
 
         /**
          * Cargar un producto individual por ID desde Firebase
          */
         async function cargarProductoIndividual(id) {
             try {
-                const docRef = window.firebaseFunctions.doc(window.firebaseDb, 'productos', id);
-                const docSnap = await window.firebaseFunctions.getDoc(docRef);
-                
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    return {
-                        id: docSnap.id,
-                        nombre: data.nombre || data.productos || "Sin Nombre",
-                        precio: typeof data.precio === 'number' ? data.precio : 
-                               parseInt(data.precio.toString().replace(/[^0-9]/g, '')) || 0,
-                        cat: data.categoria || data.cat || "Varios",
-                        desc: data.descripcion || data.desc || "",
-                        img: data.imagen || data.foto || PLACEHOLDER_SVG,
-                        disponible: data.disponible !== false
-                    };
+                // Para esta versión simple, buscamos en el cache primero
+                if (firebaseCache) {
+                    const producto = firebaseCache.find(p => p.id === id);
+                    if (producto) return producto;
                 }
+                
+                // Si no está en cache, cargar desde la base de datos local
+                const producto = db.find(p => p.id === id);
+                if (producto) return producto;
+                
                 return null;
             } catch (error) {
                 console.error("Error cargando producto individual:", error);
@@ -753,7 +738,12 @@
                 renderDestacados(db);
                 initLazyLoad();
                 
-                console.log("Productos procesados:", db.length);
+                console.log("Productos procesados exitosamente:", db.length);
+                
+                // Mostrar toast de éxito
+                setTimeout(() => {
+                    mostrarToast(`${db.length} productos cargados`, "success");
+                }, 500);
                 
             } catch (error) {
                 console.error("Error procesando productos:", error);
@@ -807,9 +797,7 @@
                 currentFilteredList = db.filter(p => 
                     p.nombre.toLowerCase().includes(texto) || 
                     p.cat.toLowerCase().includes(texto) ||
-                    (p.desc && p.desc.toLowerCase().includes(texto)) ||
-                    (p.sku && p.sku.toLowerCase().includes(texto)) ||
-                    (p.marca && p.marca.toLowerCase().includes(texto))
+                    (p.desc && p.desc.toLowerCase().includes(texto))
                 );
                 currentPage = 1; 
                 renderGrid(currentFilteredList);
@@ -1448,18 +1436,6 @@
             }, {passive: true});
         }
 
-        /**
-         * Verificar soporte WebP
-         */
-        async function checkWebPSupport() {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => resolve(true);
-                img.onerror = () => resolve(false);
-                img.src = 'data:image/webp;base64,UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==';
-            });
-        }
-
         // ============================================
         // EVENT LISTENERS Y INICIALIZACIÓN
         // ============================================
@@ -1488,26 +1464,20 @@
             }
         });
 
-        // Esperar a que Firebase esté listo
+        // Esperar a que la página esté lista
         window.addEventListener('DOMContentLoaded', () => {
-            // Verificar si Firebase está disponible
-            if (!window.firebaseDb) {
-                console.error("Firebase no se inicializó correctamente");
-                mostrarToast("Error de conexión. Recarga la página.", "error");
-                return;
-            }
-            
-            // Cargar productos
-            cargarProductosDesdeFirebase();
+            // Inicializar carrito
             updateCartUI();
             initSwipeGestures();
             
-            // Verificar soporte WebP
-            checkWebPSupport().then(supported => {
-                if (!supported) {
-                    console.log('Navegador no soporta WebP');
+            // Verificar si Firebase ya cargó los productos
+            // Si no, intentar cargarlos después de un breve delay
+            setTimeout(() => {
+                if (db.length === 0 && window.cargarProductosDesdeFirebase) {
+                    console.log("Iniciando carga de productos...");
+                    window.cargarProductosDesdeFirebase();
                 }
-            });
+            }, 500);
         });
 
         // Tecla Escape para cerrar modales
@@ -1539,10 +1509,12 @@
             }
         });
 
-        // Forzar recarga de datos (para debug)
+        // Función para forzar recarga (para debug)
         window.recargarProductos = function() {
             firebaseCache = null;
-            cargarProductosDesdeFirebase();
+            if (window.cargarProductosDesdeFirebase) {
+                window.cargarProductosDesdeFirebase();
+            }
         };
 
     </script>
