@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css">
     
     <style>
+        /* --- TUS ESTILOS ORIGINALES COMPLETOS --- */
         :root { --beige: #D2B48C; --soft-bg: #FAFAF9; --dark-text: #1a1a1a; --pastel-menu: #FFFBF2; }
         body { font-family: 'Segoe UI', sans-serif; color: var(--dark-text); background-image: url('imagenes/fondo.webp'); background-size: cover; background-position: center; background-color: #f0f0f0; }
         
@@ -79,17 +80,15 @@
             <div class="flex items-center z-20">
                 <button onclick="window.toggleMobileMenu()" class="lg:hidden text-2xl text-beige hover:text-black transition"><i class="fa fa-bars"></i></button>
             </div>
-            
             <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center w-full pointer-events-none z-30">
                 <div onclick="window.resetAndScrollToTop()" class="pointer-events-auto inline-flex items-center gap-3 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full border border-gray-50 shadow-sm cursor-pointer hover:bg-gray-50 transition-all active:scale-95">
                     <img src="imagenes/logo.webp" class="w-8 h-8 rounded-full object-cover bg-white shadow-sm" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Ccircle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23D2B48C%22/%3E%3Ctext x=%2216%22 y=%2216%22 font-family=%22Arial%22 font-size=%2210%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22white%22%3EPJ%3C/text%3E%3C/svg%3E'">
                     <h1 class="text-lg md:text-2xl font-black tracking-widest text-gray-800 uppercase whitespace-nowrap">Papajose <span class="text-beige">SPA</span></h1>
                 </div>
             </div>
-
             <div class="flex items-center gap-6 z-20 bg-white pl-4">
                 <div class="hidden lg:block relative group">
-                    <input type="text" onkeyup="window.buscar(this.value)" placeholder="Buscar en la nube..." class="bg-gray-50/50 border border-transparent rounded-full px-5 py-2.5 w-64 text-sm focus:ring-1 focus:ring-beige focus:bg-white focus:border-beige transition-all">
+                    <input type="text" onkeyup="window.buscar(this.value)" placeholder="Buscar producto..." class="bg-gray-50/50 border border-transparent rounded-full px-5 py-2.5 w-64 text-sm focus:ring-1 focus:ring-beige focus:bg-white focus:border-beige transition-all">
                     <i class="fa fa-search absolute right-4 top-3 text-beige"></i>
                 </div>
                 <div class="flex items-center gap-3">
@@ -208,6 +207,7 @@
         <div class="flex flex-col pointer-events-none"><span class="text-[10px] text-gray-400 font-bold uppercase">Productos</span><span id="mobile-total-sticky" class="text-xl font-black text-gray-900">$0</span></div>
         <button class="bg-black text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl">Ver Carrito</button>
     </div>
+    
     <button id="desktop-floating-cart" onclick="window.toggleCart()" class="hidden lg:flex fixed bottom-8 right-8 bg-black text-white px-6 py-3 rounded-full font-bold shadow-2xl z-[55] hover:scale-105 transition items-center gap-3 border-2 border-white hover:bg-beige"><i class="fa fa-shopping-bag"></i><span id="desktop-floating-total">$0</span></button>
 
     <div id="product-modal" onclick="if(event.target === this) window.closeProductModal()" class="fixed inset-0 z-[200] bg-black bg-opacity-50 hidden items-center justify-center p-4">
@@ -216,12 +216,15 @@
             <div id="modal-content" class="overflow-y-auto flex-1"></div>
         </div>
     </div>
+    
     <div id="toast-modal" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-[200] hidden transition-all w-11/12 max-w-sm toast-enter"><div class="bg-gray-900 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4"><div class="flex items-center gap-3" id="toast-content"></div></div></div>
 
     <script type="module">
+        // 1. IMPORTAR FIREBASE DESDE CDN (COMPATIBLE CON NAVEGADORES)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getFirestore, collection, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
+        // 2. CONFIGURACIÓN FIREBASE (TUS CLAVES)
         const firebaseConfig = {
             apiKey: "AIzaSyB2HFLorxznlDAEWdgOWQbzexkQF19g6Bo",
             authDomain: "mitienda-dbe60.firebaseapp.com",
@@ -232,9 +235,11 @@
             measurementId: "G-JVVGF3TCT4"
         };
 
+        // 3. INICIALIZAR
         const app = initializeApp(firebaseConfig);
         const dbFirestore = getFirestore(app);
 
+        // 4. VARIABLES GLOBALES DE TU TIENDA
         const WHATSAPP_NUM = "56936416743"; 
         let db = [];
         let cart = JSON.parse(localStorage.getItem('papajose_cart')) || [];
@@ -246,7 +251,7 @@
         let searchTimeout; 
         let costoEnvio = 3500;
 
-        // Exponer funciones globales al HTML
+        // 5. EXPONER FUNCIONES A 'WINDOW' PARA QUE EL HTML FUNCIONE (CLICS)
         window.toggleMobileMenu = () => toggleElement('left-sidebar');
         window.toggleCart = () => toggleCartLogic();
         window.handleBackAction = () => history.back();
@@ -338,8 +343,10 @@
 
         window.calcularTotal = () => updateCartUI(); 
 
+        // 6. LOGICA PRINCIPAL (CARGA DE DATOS)
         (async function init() {
             try {
+                // Descargar desde Firebase
                 const q = query(collection(dbFirestore, "productos")); 
                 const snap = await getDocs(q);
                 const raw = [];
@@ -349,6 +356,7 @@
                     raw.push(d);
                 });
                 
+                // Mapeo de datos para que coincida con tu estructura original
                 db = raw.map((item, idx) => ({
                     id: item.id_csv || idx + 1, 
                     nombre: item.nombre || "Sin Nombre",
@@ -365,7 +373,8 @@
                 currentFilteredList = db;
                 renderGrid(db);
                 renderDestacados(db);
-                updateCartUI(); 
+                updateCartUI();
+                initSwipeGestures(); // Reactivar gestos moviles
 
             } catch (e) {
                 console.error(e);
@@ -373,6 +382,7 @@
             }
         })();
 
+        // 7. FUNCIONES AUXILIARES (UI)
         function renderGrid(lista) {
             const el = document.getElementById('grid-productos');
             document.getElementById('cantidad-productos').innerText = lista.length;
@@ -501,6 +511,55 @@
             t.classList.remove('hidden'); t.classList.add('toast-visible');
             setTimeout(() => { t.classList.remove('toast-visible'); setTimeout(()=>t.classList.add('hidden'),300)}, 2000);
         }
+
+        // GESTOS TÁCTILES (SWIPE) ORIGINALES
+        function initSwipeGestures() {
+            let touchStartX = 0;
+            let touchStartY = 0;
+            
+            document.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+            }, {passive: true});
+            
+            document.addEventListener('touchend', function(e) {
+                const touchEndX = e.changedTouches[0].screenX;
+                const touchEndY = e.changedTouches[0].screenY;
+                const diffX = touchStartX - touchEndX;
+                const diffY = Math.abs(touchStartY - touchEndY);
+                
+                if (diffY < 30 && Math.abs(diffX) > 50) {
+                    if (diffX > 0 && document.getElementById('cart-sidebar').classList.contains('translate-x-0')) {
+                        forceCloseCart();
+                    }
+                    else if (diffX < 0 && !document.getElementById('left-sidebar').classList.contains('-translate-x-full')) {
+                        handleBackAction();
+                    }
+                }
+            }, {passive: true});
+        }
+
+        // HISTORIAL DE NAVEGACIÓN
+        window.addEventListener('popstate', function(event) {
+            const modal = document.getElementById('product-modal');
+            const cartSidebar = document.getElementById('cart-sidebar');
+            const leftSidebar = document.getElementById('left-sidebar');
+
+            if (!modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+                document.body.classList.remove('locked');
+            }
+
+            if (cartSidebar.classList.contains('translate-x-0')) {
+                forceCloseCart(); 
+            }
+
+            if (!leftSidebar.classList.contains('-translate-x-full')) {
+                leftSidebar.classList.add('-translate-x-full');
+                document.getElementById('menu-overlay').classList.remove('open');
+                document.body.classList.remove('locked');
+            }
+        });
     </script>
 </body>
 </html>
